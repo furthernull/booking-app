@@ -14,6 +14,7 @@ import bookingapp.repository.role.RoleRepository;
 import bookingapp.repository.telegram.TelegramRepository;
 import bookingapp.repository.user.UserRepository;
 import bookingapp.service.UserService;
+import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,6 +47,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserResponseDto updateRoleById(Long id, UserUpdateRoleRequestDto requestDto) {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Can't update role by id: " + id)
@@ -54,7 +56,7 @@ public class UserServiceImpl implements UserService {
                 () -> new EntityNotFoundException("Can't retrieve role by name: "
                         + requestDto.roleName())
         );
-        user.setRoles(Set.of(role));
+        user.setRoles(new HashSet<>(Set.of(role)));
         userRepository.save(user);
         return userMapper.toDto(user);
     }

@@ -83,7 +83,7 @@ class BookingControllerTest {
 
     @Test
     @DisplayName("Verify create() method")
-    @WithUserDetails(value = "john.example@email.com",
+    @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void create_ValidRequest_ReturnValidResponse() throws Exception {
         LocalDate checkIn = LocalDate.now().plusMonths(1);
@@ -121,7 +121,7 @@ class BookingControllerTest {
 
     @Test
     @DisplayName("Verify getBookingsByUserId() method")
-    @WithUserDetails(value = "john.example@email.com",
+    @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void getBookingsByUserId_ValidUserIdParam_ReturnValidResponse() throws Exception {
         MvcResult result = mockMvc.perform(get("/bookings/my")
@@ -134,12 +134,12 @@ class BookingControllerTest {
 
         assertNotNull(responseDtos);
         assertEquals(2, responseDtos.length);
-        assertEquals(1, responseDtos[0].customerId());
+        assertEquals(2, responseDtos[0].customerId());
     }
 
     @Test
     @DisplayName("Verify getBookingById() method")
-    @WithUserDetails(value = "john.example@email.com",
+    @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void getBookingById_ValidIdParam_ReturnValidResponse() throws Exception {
         Long id = 2L;
@@ -156,7 +156,7 @@ class BookingControllerTest {
 
     @Test
     @DisplayName("Verify updateBookingById() method")
-    @WithUserDetails(value = "john.example@email.com",
+    @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void updateBookingById_ValidUpdateRequestDto_ReturnValidResponse() throws Exception {
         Long id = 1L;
@@ -181,7 +181,7 @@ class BookingControllerTest {
 
     @Test
     @DisplayName("Verify cancelBookingById() method")
-    @WithUserDetails(value = "jane.example@gmail.com",
+    @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     @Sql(scripts = "classpath:database/booking/add-temporary-booking.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)

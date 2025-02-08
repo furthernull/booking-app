@@ -302,7 +302,7 @@ public class TestUtils {
     public static final PaymentStatus PAYMENT_STATUS_PENDING = getPaymentStatusPending();
     public static final PaymentStatus PAYMENT_STATUS_PAID = getPaymentStatusPaid();
 
-    public static final String SESSION_URL = "https://www.example.com";
+    public static final String SESSION_URL = "http://www.example.com";
     public static final String SESSION_ID = "sessionId";
     public static final String INVALID_SESSION_ID = "InvalidSessionId";
 

@@ -30,7 +30,7 @@ class UserRepositoryTest {
     @DisplayName("Verify existByEmail() method should user exist")
 
     void existByEmail_ValidEmail_ReturnTrue() {
-        String email = "john.example@email.com";
+        String email = "john.doe@example.com";
 
         boolean actual = userRepository.existsByEmail(email);
         assertTrue(actual);
@@ -48,7 +48,7 @@ class UserRepositoryTest {
     @Test
     @DisplayName("Verify findByEmail() should return exist user")
     void findByEmail_ValidEmail_ReturnExistingUser() {
-        String email = "jane.example@gmail.com";
+        String email = "john.doe@example.com";
 
         Optional<User> actual = userRepository.findByEmail(email);
         assertTrue(actual.isPresent());

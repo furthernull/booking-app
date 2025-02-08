@@ -76,7 +76,7 @@ class AuthenticationControllerTest {
     @DisplayName("Verify loginUser() method")
     void loginUser_ValidRequest_ShouldReturnToken() throws Exception {
         UserLoginRequestDto userLoginRequestDto = new UserLoginRequestDto(
-                "jane.example@gmail.com",
+                "john.doe@example.com",
                 "Qwerty&0"
         );
 
