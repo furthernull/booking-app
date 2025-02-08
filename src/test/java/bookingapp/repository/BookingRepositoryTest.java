@@ -34,7 +34,7 @@ class BookingRepositoryTest {
     @Test
     @DisplayName("Verify findAllByUserId() method")
     void findAllByUserId_ValidUserId_ReturnsBookings() {
-        Long userId = 1L;
+        Long userId = 2L;
         Pageable pageable = PageRequest.of(0, 10);
 
         List<Booking> bookings = bookingRepository.findAllByUserId(userId, pageable);
@@ -46,7 +46,7 @@ class BookingRepositoryTest {
     @DisplayName("Verify findByIdAndUserId() method")
     void findByIdAndUserId_ValidIdAndUserId_ReturnsBookings() {
         Long bookingId = 1L;
-        Long userId = 1L;
+        Long userId = 2L;
 
         Optional<Booking> bookings = bookingRepository.findByIdAndUserId(bookingId, userId);
         assertTrue(bookings.isPresent());
