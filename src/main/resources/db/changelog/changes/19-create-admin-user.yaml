@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-admin-user
+      author: dmytrosokolovskyi
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: email
+                  value: "admin@bookingapp.com"
+              - column:
+                  name: first_name
+                  value: "admin"
+              - column:
+                  name: last_name
+                  value: "admin"
+              - column:
+                  name: password
+                  value: "$2a$10$9ALRo.tHT6EiJaj/FlUQWejCtCLBcHdPgKd.NkxKixHhBzjKsw1nS"
+        - insert:
+            tableName: users_roles
+            columns:
+              - column:
+                  name: user_id
+                  valueComputed: "(SELECT id FROM users WHERE email = 'admin@bookingapp.com')"
+              - column:
+                  name: role_id
+                  valueComputed: "(SELECT id FROM roles WHERE role = 'ADMIN')"
