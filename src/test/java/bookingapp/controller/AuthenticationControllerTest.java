@@ -1,7 +1,7 @@
 package bookingapp.controller;
 
-import static bookingapp.test.TestUtils.USER_REGISTRATION_REQUEST_DTO;
-import static bookingapp.test.TestUtils.USER_RESPONSE_DTO;
+import static bookingapp.test.TestUtils.SECOND_USER_REGISTRATION_REQUEST_DTO;
+import static bookingapp.test.TestUtils.SECOND_USER_RESPONSE_DTO;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -97,7 +97,7 @@ class AuthenticationControllerTest {
     @Test
     @DisplayName("Verify registerUser() method")
     void registerUser_ValidRequest_ShouldReturnUserResponseDto() throws Exception {
-        String jsonRequest = objectMapper.writeValueAsString(USER_REGISTRATION_REQUEST_DTO);
+        String jsonRequest = objectMapper.writeValueAsString(SECOND_USER_REGISTRATION_REQUEST_DTO);
         MvcResult result = mockMvc.perform(post("/auth/registration")
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -107,6 +107,6 @@ class AuthenticationControllerTest {
         UserResponseDto userResponseDto = objectMapper
                 .readValue(result.getResponse().getContentAsString(), UserResponseDto.class);
         assertNotNull(userResponseDto);
-        EqualsBuilder.reflectionEquals(USER_RESPONSE_DTO, userResponseDto, "id");
+        EqualsBuilder.reflectionEquals(SECOND_USER_RESPONSE_DTO, userResponseDto, "id");
     }
 }

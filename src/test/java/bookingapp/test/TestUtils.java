@@ -9,7 +9,6 @@ import bookingapp.dto.booking.BookingResponseDto;
 import bookingapp.dto.booking.BookingUpdateRequestDto;
 import bookingapp.dto.payment.PaymentRequestDto;
 import bookingapp.dto.payment.PaymentResponse;
-import bookingapp.dto.user.UserLoginRequestDto;
 import bookingapp.dto.user.UserRegistrationRequestDto;
 import bookingapp.dto.user.UserResponseDto;
 import bookingapp.dto.user.UserUpdateRequestDto;
@@ -62,19 +61,19 @@ public class TestUtils {
     public static final String ADMIN_EMAIL_FIELD = "admin@bookingapp.com";
     public static final String ADMIN_PASSWORD_FIELD = "Qwerty&0";
 
-    public static final String CUSTOMER_FIRST_NAME_FIELD = "CustomerFirstName";
-    public static final String CUSTOMER_LAST_NAME_FIELD = "CustomerLastName";
-    public static final String CUSTOMER_EMAIL_FIELD = "customer@gmail.com";
+    public static final String CUSTOMER_FIRST_NAME_FIELD = "John";
+    public static final String CUSTOMER_LAST_NAME_FIELD = "Doe";
+    public static final String CUSTOMER_EMAIL_FIELD = "john.doe@example.com";
     public static final String CUSTOMER_PASSWORD_FIELD = "Qwerty&0";
     public static final String CUSTOMER_PASSWORD_CONFIRMATION_FIELD = "Qwerty&0";
     public static final String CUSTOMER_ENCODED_PASSWORD =
-            "$2a$10$4c3FoiAa1RINf6IMfJ.MXOPKkbapFI/EWuuLq2QCR2GHGj9FDTYke";
+            "$2a$10$yvofprfFFpxZatoflOuduupLzGqFWizREUJ0.lcQMDREJ28r8XB6.";
 
-    public static final String ANOTHER_CUSTOMER_FIRST_NAME_FIELD = "AnotherCustomerFirstName";
-    public static final String ANOTHER_CUSTOMER_LAST_NAME_FIELD = "AnotherCustomerLastName";
-    public static final String ANOTHER_CUSTOMER_EMAIL_FIELD = "another.customer@email.com";
-    public static final String ANOTHER_CUSTOMER_PASSWORD_FIELD = "AnotherCustomerPassword!1";
-    public static final String ANOTHER_CUSTOMER_PASSWORD_CONFIRMATION_FIELD =
+    public static final String SECOND_CUSTOMER_FIRST_NAME_FIELD = "Jane";
+    public static final String SECOND_CUSTOMER_LAST_NAME_FIELD = "Doe";
+    public static final String SECOND_CUSTOMER_EMAIL_FIELD = "jane.doe@example.com";
+    public static final String SECOND_CUSTOMER_PASSWORD_FIELD = "AnotherCustomerPassword!1";
+    public static final String SECOND_CUSTOMER_PASSWORD_CONFIRMATION_FIELD =
             "AnotherCustomerPassword!1";
 
     public static final String ACCOMMODATION_SIZE_STUDIO = "Studio";
@@ -184,22 +183,26 @@ public class TestUtils {
                     CUSTOMER_PASSWORD_CONFIRMATION_FIELD
             );
 
+    public static final UserRegistrationRequestDto SECOND_USER_REGISTRATION_REQUEST_DTO =
+            new UserRegistrationRequestDto(
+                    SECOND_CUSTOMER_EMAIL_FIELD,
+                    SECOND_CUSTOMER_FIRST_NAME_FIELD,
+                    SECOND_CUSTOMER_LAST_NAME_FIELD,
+                    SECOND_CUSTOMER_PASSWORD_FIELD,
+                    SECOND_CUSTOMER_PASSWORD_CONFIRMATION_FIELD
+            );
+
     public static final UserUpdateRoleRequestDto USER_UPDATE_ROLE_REQUEST_DTO =
             new UserUpdateRoleRequestDto(Role.RoleName.ADMIN);
 
     public static final UserUpdateRequestDto USER_UPDATE_REQUEST_DTO =
             new UserUpdateRequestDto(
-                    ANOTHER_CUSTOMER_EMAIL_FIELD,
-                    ANOTHER_CUSTOMER_FIRST_NAME_FIELD,
-                    ANOTHER_CUSTOMER_LAST_NAME_FIELD,
-                    ANOTHER_CUSTOMER_PASSWORD_FIELD,
-                    ANOTHER_CUSTOMER_PASSWORD_CONFIRMATION_FIELD
+                    SECOND_CUSTOMER_EMAIL_FIELD,
+                    SECOND_CUSTOMER_FIRST_NAME_FIELD,
+                    SECOND_CUSTOMER_LAST_NAME_FIELD,
+                    SECOND_CUSTOMER_PASSWORD_FIELD,
+                    SECOND_CUSTOMER_PASSWORD_CONFIRMATION_FIELD
             );
-
-    public static final UserLoginRequestDto LOGIN_ADMIN_REQUEST_DTO = new UserLoginRequestDto(
-            ADMIN_EMAIL_FIELD,
-            ADMIN_PASSWORD_FIELD
-    );
 
     public static final User USER_ADMIN = getUserAdmin();
     public static final User USER_CUSTOMER = getUserCustomer();
@@ -220,11 +223,11 @@ public class TestUtils {
             CUSTOMER_EMAIL_FIELD
     );
 
-    public static final UserResponseDto USER_UPDATED_RESPONSE_DTO = new UserResponseDto(
+    public static final UserResponseDto SECOND_USER_RESPONSE_DTO = new UserResponseDto(
             DEFAULT_ID_THREE,
-            ANOTHER_CUSTOMER_FIRST_NAME_FIELD,
-            ANOTHER_CUSTOMER_LAST_NAME_FIELD,
-            ANOTHER_CUSTOMER_EMAIL_FIELD
+            SECOND_CUSTOMER_FIRST_NAME_FIELD,
+            SECOND_CUSTOMER_LAST_NAME_FIELD,
+            SECOND_CUSTOMER_EMAIL_FIELD
     );
 
     public static final BookingStatus.Status STATUS_PENDING = BookingStatus.Status.PENDING;
@@ -239,6 +242,8 @@ public class TestUtils {
 
     public static final LocalDate DEFAULT_CHECK_IN_DATE = LocalDate.now().plusDays(1);
     public static final LocalDate DEFAULT_CHECK_OUT_DATE = LocalDate.now().plusMonths(1);
+    public static final LocalDate DEFAULT_CHECK_IN_DATE_DIFFERENT = LocalDate.now().plusMonths(1);
+    public static final LocalDate DEFAULT_CHECK_OUT_DATE_DIFFERENT = LocalDate.now().plusYears(1);
     public static final LocalDate UPDATE_CHECK_IN_DATE = LocalDate.now().plusWeeks(2);
     public static final LocalDate UPDATE_CHECK_OUT_DATE = LocalDate.now().plusYears(1);
     public static final LocalDate EXPIRED_CHECK_IN_DATE = LocalDate.now();
@@ -316,6 +321,8 @@ public class TestUtils {
     public static final Payment PAYMENT_PAID = getPaymentPaid();
 
     public static final PaymentResponse PAYMENT_PENDING_RESPONSE = getPaymentPendingResponse();
+    public static final PaymentResponse SECOND_PAYMENT_PENDING_RESPONSE =
+            getSecondPaymentPendingResponse();
     public static final PaymentResponse PAYMENT_PAID_RESPONSE = getPaymentPaidResponse();
 
     public static final Page<Payment> PAYMENT_PAGE = new PageImpl<>(List.of(PAYMENT_PENDING));
@@ -513,10 +520,10 @@ public class TestUtils {
     private static User getUserCustomer2() {
         User user = new User();
         user.setId(DEFAULT_ID_THREE);
-        user.setFirstName(ANOTHER_CUSTOMER_FIRST_NAME_FIELD);
-        user.setLastName(ANOTHER_CUSTOMER_LAST_NAME_FIELD);
-        user.setEmail(ANOTHER_CUSTOMER_EMAIL_FIELD);
-        user.setPassword(ANOTHER_CUSTOMER_PASSWORD_FIELD);
+        user.setFirstName(SECOND_CUSTOMER_FIRST_NAME_FIELD);
+        user.setLastName(SECOND_CUSTOMER_LAST_NAME_FIELD);
+        user.setEmail(SECOND_CUSTOMER_EMAIL_FIELD);
+        user.setPassword(SECOND_CUSTOMER_PASSWORD_FIELD);
         user.setRoles(Set.of(ROLE_CUSTOMER));
         return user;
     }
@@ -667,8 +674,19 @@ public class TestUtils {
     private static PaymentResponse getPaymentPendingResponse() {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setId(DEFAULT_ID_ONE);
-        paymentResponse.setPaymentStatus(PENDING.name());
+        paymentResponse.setPaymentStatus(PAID.name());
         paymentResponse.setBookingId(String.valueOf(DEFAULT_ID_ONE));
+        paymentResponse.setSessionUrl(SESSION_URL);
+        paymentResponse.setSessionId(SESSION_ID);
+        paymentResponse.setAmount(String.valueOf(PAYMENT_AMOUNT));
+        return paymentResponse;
+    }
+
+    private static PaymentResponse getSecondPaymentPendingResponse() {
+        PaymentResponse paymentResponse = new PaymentResponse();
+        paymentResponse.setId(DEFAULT_ID_TWO);
+        paymentResponse.setPaymentStatus(PENDING.name());
+        paymentResponse.setBookingId(String.valueOf(DEFAULT_ID_TWO));
         paymentResponse.setSessionUrl(SESSION_URL);
         paymentResponse.setSessionId(SESSION_ID);
         paymentResponse.setAmount(String.valueOf(PAYMENT_AMOUNT));
