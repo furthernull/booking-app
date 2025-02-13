@@ -51,7 +51,7 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler({EntityNotFoundException.class,
-            IllegalArgumentException.class,
+            IllegalStateException.class,
             SpecificationProviderNotFoundException.class})
     protected ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex) {
         Map<String, Object> body = fillResponseBody(

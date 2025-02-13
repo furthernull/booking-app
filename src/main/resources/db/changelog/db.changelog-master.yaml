@@ -37,3 +37,5 @@ databaseChangeLog:
       file: db/changelog/changes/18-create-payments-table.yaml
   - include:
       file: db/changelog/changes/19-create-admin-user.yaml
+  - include:
+      file: db/changelog/changes/20-add-new-payment-status.yaml

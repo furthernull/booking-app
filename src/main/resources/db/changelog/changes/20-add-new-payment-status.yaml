@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-new-payment-status
+      author: dmytrosokolovskyi
+      changes:
+        - insert:
+            tableName: payment_statuses
+            columns:
+              - column:
+                  name: status
+                  value: EXPIRED

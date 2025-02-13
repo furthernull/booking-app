@@ -64,6 +64,15 @@ public class PaymentController {
         return paymentService.initiatePayment(user, requestDto);
     }
 
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @PostMapping("/renew/")
+    @Operation(summary = "Renew expired payment session",
+            description = "renews an expired payment session")
+    public PaymentResponse renewPayment(@RequestParam String sessionId,
+                                        @AuthenticationPrincipal User user) {
+        return paymentService.renewPaymentSession(sessionId, user);
+    }
+
     @GetMapping("/success/")
     @Operation(summary = "Success payment",
             description = "handles successful payment processing through Stripe redirection")

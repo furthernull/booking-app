@@ -14,4 +14,8 @@ public interface PaymentService {
     PaymentResponse handleSuccessPayment(String sessionId);
 
     PaymentResponse handleCancelPayment(String sessionId);
+
+    void processExpiredPayments();
+
+    PaymentResponse renewPaymentSession(String sessionId, User user);
 }
