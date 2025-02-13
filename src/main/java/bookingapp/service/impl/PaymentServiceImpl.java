@@ -2,7 +2,9 @@ package bookingapp.service.impl;
 
 import bookingapp.dto.payment.PaymentRequestDto;
 import bookingapp.dto.payment.PaymentResponse;
+import bookingapp.exception.AccessDeniedException;
 import bookingapp.exception.EntityNotFoundException;
+import bookingapp.exception.IllegalStateException;
 import bookingapp.exception.UrlCreationException;
 import bookingapp.mapper.PaymentMapper;
 import bookingapp.model.booking.Booking;
@@ -33,7 +35,9 @@ public class PaymentServiceImpl implements PaymentService {
     private static final BookingStatus.Status CONFIRMED = BookingStatus.Status.CONFIRMED;
     private static final PaymentStatus.Status PENDING = PaymentStatus.Status.PENDING;
     private static final PaymentStatus.Status PAID = PaymentStatus.Status.PAID;
+    private static final PaymentStatus.Status EXPIRED = PaymentStatus.Status.EXPIRED;
     private static final String SESSION_PAYMENT_STATUS_PAID = "paid";
+    private static final String SESSION_STATUS_EXPIRED = "expired";
     private final BookingRepository bookingRepository;
     private final BookingStatusRepository bookingStatusRepository;
     private final NotificationService notificationService;
@@ -90,6 +94,37 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponse handleCancelPayment(String sessionId) {
         Payment payment = getPayment(sessionId);
         notificationService.sendNotification(payment);
+        return paymentMapper.toDto(payment);
+    }
+
+    @Transactional
+    @Override
+    public void processExpiredPayments() {
+        paymentRepository.findPendingPayments().forEach(p -> {
+            Session session = stripeService.getSessionById(p.getSessionId());
+            if (session != null && session.getStatus().equals(SESSION_STATUS_EXPIRED)) {
+                p.setStatus(getPaymentStatus(EXPIRED));
+                paymentRepository.save(p);
+            }
+        });
+    }
+
+    @Transactional
+    @Override
+    public PaymentResponse renewPaymentSession(String sessionId, User user) {
+        Payment payment = getPayment(sessionId);
+        if (!payment.getBooking().getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Can't renew payment session. "
+                    + "You're not authorized to renew payment");
+        }
+        if (!payment.getStatus().getStatus().equals(EXPIRED)) {
+            throw new IllegalStateException("Can't renew payment session. Is not expired");
+        }
+        Session newSession = stripeService.createSession(payment);
+        payment.setSessionUrl(getUrl(newSession.getUrl()));
+        payment.setSessionId(newSession.getId());
+        payment.setStatus(getPaymentStatus(PENDING));
+        paymentRepository.save(payment);
         return paymentMapper.toDto(payment);
     }
 

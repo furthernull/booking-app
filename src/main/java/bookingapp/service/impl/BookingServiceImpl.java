@@ -6,7 +6,7 @@ import bookingapp.dto.booking.BookingResponseDto;
 import bookingapp.dto.booking.BookingUpdateRequestDto;
 import bookingapp.exception.AccommodationAvailabilityException;
 import bookingapp.exception.EntityNotFoundException;
-import bookingapp.exception.IllegalStateBookingException;
+import bookingapp.exception.IllegalStateException;
 import bookingapp.mapper.BookingMapper;
 import bookingapp.model.accommodation.Accommodation;
 import bookingapp.model.booking.Booking;
@@ -116,7 +116,7 @@ public class BookingServiceImpl implements BookingService {
                 () -> new EntityNotFoundException("Can't cancel Booking with id " + id)
         );
         if (booking.getStatus().getStatus().equals(CANCELLED_STATUS)) {
-            throw new IllegalStateBookingException("Booking has already been canceled");
+            throw new IllegalStateException("Booking has already been canceled");
         }
         BookingStatus status = bookingStatusRepository.findByStatus(CANCELLED_STATUS)
                 .orElseThrow(

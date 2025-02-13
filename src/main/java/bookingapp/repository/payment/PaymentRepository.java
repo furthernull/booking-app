@@ -23,4 +23,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             + "JOIN FETCH b.user "
             + "WHERE p.sessionId = :sessionId")
     Optional<Payment> findBySessionId(String sessionId);
+
+    @Query("SELECT p FROM Payment p WHERE p.status.status = 'PENDING'")
+    List<Payment> findPendingPayments();
 }
