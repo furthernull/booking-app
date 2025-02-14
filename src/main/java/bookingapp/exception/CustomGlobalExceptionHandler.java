@@ -42,6 +42,12 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(BookingCreationException.class)
+    protected ResponseEntity<Object> handleBookingCreationException(BookingCreationException ex) {
+        Map<String, Object> body = fillResponseBody(HttpStatus.FORBIDDEN, ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<Object> handleConstraintViolationException(
             ConstraintViolationException ex
