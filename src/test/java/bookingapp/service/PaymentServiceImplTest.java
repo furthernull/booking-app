@@ -4,14 +4,17 @@ import static bookingapp.test.TestUtils.BOOKING_STATUS_CONFIRMED;
 import static bookingapp.test.TestUtils.BOOKING_STUDIO_CONFIRMED;
 import static bookingapp.test.TestUtils.BOOKING_STUDIO_PENDING;
 import static bookingapp.test.TestUtils.DEFAULT_ID_ONE;
+import static bookingapp.test.TestUtils.EXPIRED;
 import static bookingapp.test.TestUtils.PAGEABLE;
 import static bookingapp.test.TestUtils.PAID;
+import static bookingapp.test.TestUtils.PAYMENT_EXPIRED;
 import static bookingapp.test.TestUtils.PAYMENT_PAGE;
 import static bookingapp.test.TestUtils.PAYMENT_PAID;
 import static bookingapp.test.TestUtils.PAYMENT_PAID_RESPONSE;
 import static bookingapp.test.TestUtils.PAYMENT_PENDING;
 import static bookingapp.test.TestUtils.PAYMENT_PENDING_RESPONSE;
 import static bookingapp.test.TestUtils.PAYMENT_REQUEST_DTO;
+import static bookingapp.test.TestUtils.PAYMENT_STATUS_EXPIRED;
 import static bookingapp.test.TestUtils.PAYMENT_STATUS_PAID;
 import static bookingapp.test.TestUtils.PAYMENT_STATUS_PENDING;
 import static bookingapp.test.TestUtils.PENDING;
@@ -153,5 +156,44 @@ class PaymentServiceImplTest {
         PaymentResponse actual = paymentService.handleCancelPayment(SESSION_ID);
         assertNotNull(actual);
         assertEquals(paymentResponse, actual);
+    }
+
+    @Test
+    @DisplayName("Verify processExpiredPayments() method")
+    void processExpiredPayments_ShouldUpdateExpiredPayments() {
+        Session session = mock(Session.class);
+
+        when(paymentRepository.findPendingPayments()).thenReturn(List.of(PAYMENT_PENDING));
+        when(stripeService.getSessionById(SESSION_ID)).thenReturn(session);
+        when(session.getStatus()).thenReturn("expired");
+        when(paymentStatusRepository.findByStatus(EXPIRED))
+                .thenReturn(Optional.of(PAYMENT_STATUS_EXPIRED));
+
+        paymentService.processExpiredPayments();
+
+        verify(paymentRepository).save(PAYMENT_PENDING);
+    }
+
+    @Test
+    @DisplayName("Renew payment session successfully")
+    void renewPaymentSession_ValidRequest_ShouldReturnUpdatedPaymentResponse() {
+        Session newSession = mock(Session.class);
+        when(newSession.getId()).thenReturn(SESSION_ID);
+        when(newSession.getUrl()).thenReturn(SESSION_URL);
+
+        when(paymentRepository.findBySessionId(SESSION_ID))
+                .thenReturn(Optional.of(PAYMENT_EXPIRED));
+        when(stripeService.createSession(PAYMENT_EXPIRED)).thenReturn(newSession);
+        when(paymentStatusRepository.findByStatus(PENDING))
+                .thenReturn(Optional.of(PAYMENT_STATUS_PENDING));
+        when(paymentRepository.save(PAYMENT_EXPIRED)).thenReturn(PAYMENT_EXPIRED);
+        when(paymentMapper.toDto(PAYMENT_EXPIRED)).thenReturn(PAYMENT_PENDING_RESPONSE);
+
+        PaymentResponse actual = paymentService.renewPaymentSession(SESSION_ID, USER_CUSTOMER);
+
+        assertNotNull(actual);
+        assertEquals(PAYMENT_PENDING_RESPONSE, actual);
+        assertEquals(SESSION_ID, PAYMENT_EXPIRED.getSessionId());
+        verify(paymentRepository).save(PAYMENT_EXPIRED);
     }
 }

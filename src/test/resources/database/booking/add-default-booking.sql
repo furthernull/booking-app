@@ -44,7 +44,8 @@ INSERT INTO accommodations_amenity_types (accommodation_id, amenity_id) VALUES
 
 INSERT INTO users (id, email, first_name, last_name, password, is_deleted) VALUES
     (1, 'admin@email.com', 'Admin', 'Admin', '$2a$10$yvofprfFFpxZatoflOuduupLzGqFWizREUJ0.lcQMDREJ28r8XB6.', false),
-    (2, 'john.doe@example.com', 'John', 'Doe', '$2a$10$yvofprfFFpxZatoflOuduupLzGqFWizREUJ0.lcQMDREJ28r8XB6.', false);
+    (2, 'john.doe@example.com', 'John', 'Doe', '$2a$10$yvofprfFFpxZatoflOuduupLzGqFWizREUJ0.lcQMDREJ28r8XB6.', false),
+    (3, 'test.user@example.com', 'User', 'Test', '$2a$10$yvofprfFFpxZatoflOuduupLzGqFWizREUJ0.lcQMDREJ28r8XB6.', false);
 
 INSERT INTO users_roles (user_id, role_id) VALUES
     (1, 1),
@@ -59,7 +60,6 @@ INSERT INTO booking_statuses (id, status) VALUES
     (4, 'EXPIRED');
 
 INSERT INTO bookings (id, check_in_date, check_out_date, accommodation_id, user_id, status_id, is_deleted) VALUES
-    (1, CURRENT_DATE + INTERVAL '1 day', CURRENT_DATE + INTERVAL '1 month', 1, 2, 1, false),
-    (2, CURRENT_DATE + INTERVAL '2 month', CURRENT_DATE + INTERVAL '1 year', 1, 2, 1, false);
+    (1, CURRENT_DATE + INTERVAL '1 day', CURRENT_DATE + INTERVAL '1 month', 1, 2, 1, false);
 
 SELECT SETVAL('bookings_id_seq', (SELECT MAX(id) FROM bookings));

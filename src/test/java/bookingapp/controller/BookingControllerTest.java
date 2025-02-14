@@ -58,7 +58,7 @@ class BookingControllerTest {
             connection.setAutoCommit(true);
             ScriptUtils.executeSqlScript(
                     connection,
-                    new ClassPathResource("database/booking/add-default-two-bookings.sql")
+                    new ClassPathResource("database/booking/add-default-booking.sql")
             );
         }
     }
@@ -83,7 +83,7 @@ class BookingControllerTest {
 
     @Test
     @DisplayName("Verify create() method")
-    @WithUserDetails(value = "john.doe@example.com",
+    @WithUserDetails(value = "test.user@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void create_ValidRequest_ReturnValidResponse() throws Exception {
         LocalDate checkIn = LocalDate.now().plusMonths(1);
@@ -116,7 +116,7 @@ class BookingControllerTest {
         BookingResponseDto[] responseDtos = objectMapper.readValue(
                 result.getResponse().getContentAsString(), BookingResponseDto[].class);
         assertNotNull(responseDtos);
-        assertEquals(2, responseDtos.length);
+        assertEquals(1, responseDtos.length);
     }
 
     @Test
@@ -133,7 +133,7 @@ class BookingControllerTest {
                 result.getResponse().getContentAsString(), BookingResponseDto[].class);
 
         assertNotNull(responseDtos);
-        assertEquals(2, responseDtos.length);
+        assertEquals(1, responseDtos.length);
         assertEquals(2, responseDtos[0].customerId());
     }
 
@@ -142,7 +142,7 @@ class BookingControllerTest {
     @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void getBookingById_ValidIdParam_ReturnValidResponse() throws Exception {
-        Long id = 2L;
+        Long id = 1L;
         MvcResult result = mockMvc.perform(get("/bookings/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

@@ -3,6 +3,7 @@ package bookingapp.controller;
 import static bookingapp.test.TestUtils.PAGEABLE;
 import static bookingapp.test.TestUtils.PAYMENT_PAID_RESPONSE;
 import static bookingapp.test.TestUtils.PAYMENT_PENDING_RESPONSE;
+import static bookingapp.test.TestUtils.RENEWED_PAYMENT_PENDING_RESPONSE;
 import static bookingapp.test.TestUtils.SECOND_PAYMENT_PENDING_RESPONSE;
 import static bookingapp.test.TestUtils.SESSION_ID;
 import static bookingapp.test.TestUtils.USER_CUSTOMER;
@@ -64,7 +65,7 @@ class PaymentControllerTest {
             connection.setAutoCommit(true);
             ScriptUtils.executeSqlScript(
                     connection,
-                    new ClassPathResource("database/payment/add-default-payment.sql")
+                    new ClassPathResource("database/payment/add-default-three-payment.sql")
             );
         }
     }
@@ -127,7 +128,7 @@ class PaymentControllerTest {
     @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void createPayment_ValidRequest_ValidResponse() throws Exception {
-        PaymentRequestDto requestDto = new PaymentRequestDto(2L);
+        PaymentRequestDto requestDto = new PaymentRequestDto(1L);
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
         when(paymentService.initiatePayment(USER_CUSTOMER, requestDto))
@@ -136,8 +137,21 @@ class PaymentControllerTest {
         mockMvc.perform(post("/payments/")
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andReturn();
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    @DisplayName("Verify renewPayment() method")
+    @WithUserDetails(value = "john.doe@example.com",
+            userDetailsServiceBeanName = "customUserDetailsService")
+    void renewPayment_ValidRequest_ValidResponse() throws Exception {
+        when(paymentService.renewPaymentSession("sessionIdExpired", USER_CUSTOMER))
+                .thenReturn(RENEWED_PAYMENT_PENDING_RESPONSE);
+
+        mockMvc.perform(post("/payments/renew/")
+                        .param("sessionId", "sessionIdExpired")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -150,8 +164,7 @@ class PaymentControllerTest {
         mockMvc.perform(get("/payments/success/")
                         .param("sessionId", "sessionId")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn();
+                .andExpect(status().isOk());
     }
 
     @Test
