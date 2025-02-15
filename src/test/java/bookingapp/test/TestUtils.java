@@ -303,9 +303,11 @@ public class TestUtils {
 
     public static final PaymentStatus.Status PENDING = PaymentStatus.Status.PENDING;
     public static final PaymentStatus.Status PAID = PaymentStatus.Status.PAID;
+    public static final PaymentStatus.Status EXPIRED = PaymentStatus.Status.EXPIRED;
 
     public static final PaymentStatus PAYMENT_STATUS_PENDING = getPaymentStatusPending();
     public static final PaymentStatus PAYMENT_STATUS_PAID = getPaymentStatusPaid();
+    public static final PaymentStatus PAYMENT_STATUS_EXPIRED = getPaymentStatusExpired();
 
     public static final String SESSION_URL = "http://www.example.com";
     public static final String SESSION_ID = "sessionId";
@@ -319,8 +321,11 @@ public class TestUtils {
 
     public static final Payment PAYMENT_PENDING = getPaymentPending();
     public static final Payment PAYMENT_PAID = getPaymentPaid();
+    public static final Payment PAYMENT_EXPIRED = getPaymentExpired();
 
     public static final PaymentResponse PAYMENT_PENDING_RESPONSE = getPaymentPendingResponse();
+    public static final PaymentResponse RENEWED_PAYMENT_PENDING_RESPONSE =
+            getRenewedPaymentPendingResponse();
     public static final PaymentResponse SECOND_PAYMENT_PENDING_RESPONSE =
             getSecondPaymentPendingResponse();
     public static final PaymentResponse PAYMENT_PAID_RESPONSE = getPaymentPaidResponse();
@@ -647,6 +652,13 @@ public class TestUtils {
         return paymentStatus;
     }
 
+    private static PaymentStatus getPaymentStatusExpired() {
+        PaymentStatus paymentStatus = new PaymentStatus();
+        paymentStatus.setId(DEFAULT_ID_THREE);
+        paymentStatus.setStatus(EXPIRED);
+        return paymentStatus;
+    }
+
     @SneakyThrows
     private static Payment getPaymentPending() {
         Payment payment = new Payment();
@@ -671,10 +683,33 @@ public class TestUtils {
         return payment;
     }
 
+    @SneakyThrows
+    private static Payment getPaymentExpired() {
+        Payment payment = new Payment();
+        payment.setId(DEFAULT_ID_ONE);
+        payment.setStatus(PAYMENT_STATUS_EXPIRED);
+        payment.setBooking(BOOKING_STUDIO_PENDING);
+        payment.setSessionUrl(new URL(SESSION_URL));
+        payment.setSessionId(SESSION_ID);
+        payment.setAmountToPay(PAYMENT_AMOUNT);
+        return payment;
+    }
+
     private static PaymentResponse getPaymentPendingResponse() {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setId(DEFAULT_ID_ONE);
         paymentResponse.setPaymentStatus(PAID.name());
+        paymentResponse.setBookingId(String.valueOf(DEFAULT_ID_ONE));
+        paymentResponse.setSessionUrl(SESSION_URL);
+        paymentResponse.setSessionId(SESSION_ID);
+        paymentResponse.setAmount(String.valueOf(PAYMENT_AMOUNT));
+        return paymentResponse;
+    }
+
+    private static PaymentResponse getRenewedPaymentPendingResponse() {
+        PaymentResponse paymentResponse = new PaymentResponse();
+        paymentResponse.setId(DEFAULT_ID_THREE);
+        paymentResponse.setPaymentStatus(PENDING.name());
         paymentResponse.setBookingId(String.valueOf(DEFAULT_ID_ONE));
         paymentResponse.setSessionUrl(SESSION_URL);
         paymentResponse.setSessionId(SESSION_ID);

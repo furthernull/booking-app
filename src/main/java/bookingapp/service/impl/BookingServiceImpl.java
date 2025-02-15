@@ -5,6 +5,7 @@ import bookingapp.dto.booking.BookingRequestDto;
 import bookingapp.dto.booking.BookingResponseDto;
 import bookingapp.dto.booking.BookingUpdateRequestDto;
 import bookingapp.exception.AccommodationAvailabilityException;
+import bookingapp.exception.BookingCreationException;
 import bookingapp.exception.EntityNotFoundException;
 import bookingapp.exception.IllegalStateException;
 import bookingapp.mapper.BookingMapper;
@@ -20,6 +21,7 @@ import bookingapp.service.BookingService;
 import bookingapp.service.NotificationService;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,6 +45,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public BookingResponseDto createBooking(User user, BookingRequestDto requestDto) {
+        checkPendingBooking(user);
         if (!isAccommodationAvailable(
                 requestDto.accommodationId(),
                 requestDto.checkInDate(),
@@ -132,14 +135,24 @@ public class BookingServiceImpl implements BookingService {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
         BookingStatus status = bookingStatusRepository.findByStatus(
                 EXPIRED_STATUS).orElseThrow(
-                    () -> new EntityNotFoundException(
-                        "Can't retrieve status PENDING from DB"));
+                        () -> new EntityNotFoundException(
+                                "Can't retrieve status PENDING from DB"));
         List<Booking> expiredBookings = bookingRepository.findExpiringBookings(tomorrow);
         expiredBookings.forEach(booking -> {
             booking.setStatus(status);
             bookingRepository.save(booking);
         });
         notificationService.sendNotification(expiredBookings);
+    }
+
+    private void checkPendingBooking(User user) {
+        Optional<Booking> booking =
+                bookingRepository.findAllPendingBookingByUserId(user.getId())
+                        .stream()
+                        .findAny();
+        if (booking.isPresent()) {
+            throw new BookingCreationException("At least one booking has awaiting payment");
+        }
     }
 
     private boolean isAccommodationAvailable(

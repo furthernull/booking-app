@@ -23,7 +23,7 @@ import org.springframework.test.context.jdbc.Sql;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Sql(scripts = "classpath:database/booking/delete-booking-related-data.sql",
         executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
-@Sql(scripts = "classpath:database/booking/add-default-two-bookings.sql",
+@Sql(scripts = "classpath:database/booking/add-default-booking.sql",
         executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = {"classpath:database/booking/delete-booking-related-data.sql"},
         executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -38,7 +38,7 @@ class BookingRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         List<Booking> bookings = bookingRepository.findAllByUserId(userId, pageable);
-        assertEquals(2, bookings.size());
+        assertEquals(1, bookings.size());
         assertEquals(userId, bookings.get(0).getUser().getId());
     }
 
