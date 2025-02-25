@@ -8,6 +8,6 @@ public record BookingResponseDto(
         LocalDate checkOutDate,
         Long accommodationId,
         Long customerId,
-        Long bookingStatusId
+        String bookingStatus
 ) {
 }

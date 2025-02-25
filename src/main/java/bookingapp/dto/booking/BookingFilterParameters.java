@@ -1,12 +1,9 @@
 package bookingapp.dto.booking;
 
-import bookingapp.model.booking.BookingStatus;
-import jakarta.validation.constraints.NotNull;
+import bookingapp.model.booking.Booking;
 
 public record BookingFilterParameters(
-        @NotNull
         Long userId,
-        @NotNull
-        BookingStatus.Status status
+        Booking.Status status
 ) {
 }

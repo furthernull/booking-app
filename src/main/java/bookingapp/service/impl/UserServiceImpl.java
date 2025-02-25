@@ -74,7 +74,6 @@ public class UserServiceImpl implements UserService {
                 () -> new EntityNotFoundException("Can't update user by id: " + id)
         );
         userMapper.updateUser(user, requestDto);
-        user.setPassword(passwordEncoder.encode(requestDto.password()));
         userRepository.save(user);
         return userMapper.toDto(user);
     }

@@ -8,14 +8,10 @@ import bookingapp.exception.IllegalStateException;
 import bookingapp.exception.UrlCreationException;
 import bookingapp.mapper.PaymentMapper;
 import bookingapp.model.booking.Booking;
-import bookingapp.model.booking.BookingStatus;
 import bookingapp.model.payment.Payment;
-import bookingapp.model.payment.PaymentStatus;
 import bookingapp.model.user.User;
 import bookingapp.repository.booking.BookingRepository;
-import bookingapp.repository.bookingstatus.BookingStatusRepository;
 import bookingapp.repository.payment.PaymentRepository;
-import bookingapp.repository.paymentstatus.PaymentStatusRepository;
 import bookingapp.service.NotificationService;
 import bookingapp.service.PaymentService;
 import com.stripe.model.checkout.Session;
@@ -32,18 +28,16 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class PaymentServiceImpl implements PaymentService {
-    private static final BookingStatus.Status CONFIRMED = BookingStatus.Status.CONFIRMED;
-    private static final PaymentStatus.Status PENDING = PaymentStatus.Status.PENDING;
-    private static final PaymentStatus.Status PAID = PaymentStatus.Status.PAID;
-    private static final PaymentStatus.Status EXPIRED = PaymentStatus.Status.EXPIRED;
+    private static final Booking.Status CONFIRMED = Booking.Status.CONFIRMED;
+    private static final Payment.Status PENDING = Payment.Status.PENDING;
+    private static final Payment.Status PAID = Payment.Status.PAID;
+    private static final Payment.Status EXPIRED = Payment.Status.EXPIRED;
     private static final String SESSION_PAYMENT_STATUS_PAID = "paid";
     private static final String SESSION_STATUS_EXPIRED = "expired";
     private final BookingRepository bookingRepository;
-    private final BookingStatusRepository bookingStatusRepository;
     private final NotificationService notificationService;
     private final PaymentMapper paymentMapper;
     private final PaymentRepository paymentRepository;
-    private final PaymentStatusRepository paymentStatusRepository;
     private final StripeService stripeService;
 
     @Override
@@ -63,7 +57,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(
                         () -> new EntityNotFoundException(
                                 "Can't fetch booking by id: " + requestDto.bookingId()));
-        payment.setStatus(getPaymentStatus(PENDING));
+        payment.setStatus(PENDING);
         payment.setBooking(booking);
         payment.setAmountToPay(calculateAmount(booking));
         Session session = stripeService.createSession(payment);
@@ -80,12 +74,12 @@ public class PaymentServiceImpl implements PaymentService {
         Session session = stripeService.getSessionById(sessionId);
         if (session != null && session.getPaymentStatus().equals(SESSION_PAYMENT_STATUS_PAID)) {
             Booking booking = payment.getBooking();
-            booking.setStatus(getBookingStatus(CONFIRMED));
-            payment.setStatus(getPaymentStatus(PAID));
+            booking.setStatus(CONFIRMED);
+            payment.setStatus(PAID);
             bookingRepository.save(booking);
             paymentRepository.save(payment);
         }
-        notificationService.sendNotification(payment);
+        sendNotification(payment);
         return paymentMapper.toDto(payment);
     }
 
@@ -93,7 +87,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentResponse handleCancelPayment(String sessionId) {
         Payment payment = getPayment(sessionId);
-        notificationService.sendNotification(payment);
+        sendNotification(payment);
         return paymentMapper.toDto(payment);
     }
 
@@ -103,7 +97,7 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.findPendingPayments().forEach(p -> {
             Session session = stripeService.getSessionById(p.getSessionId());
             if (session != null && session.getStatus().equals(SESSION_STATUS_EXPIRED)) {
-                p.setStatus(getPaymentStatus(EXPIRED));
+                p.setStatus(EXPIRED);
                 paymentRepository.save(p);
             }
         });
@@ -117,13 +111,13 @@ public class PaymentServiceImpl implements PaymentService {
             throw new AccessDeniedException("Can't renew payment session. "
                     + "You're not authorized to renew payment");
         }
-        if (!payment.getStatus().getStatus().equals(EXPIRED)) {
+        if (!payment.getStatus().equals(EXPIRED)) {
             throw new IllegalStateException("Can't renew payment session. Is not expired");
         }
         Session newSession = stripeService.createSession(payment);
         payment.setSessionUrl(getUrl(newSession.getUrl()));
         payment.setSessionId(newSession.getId());
-        payment.setStatus(getPaymentStatus(PENDING));
+        payment.setStatus(PENDING);
         paymentRepository.save(payment);
         return paymentMapper.toDto(payment);
     }
@@ -139,23 +133,15 @@ public class PaymentServiceImpl implements PaymentService {
         return BigDecimal.valueOf(days).multiply(booking.getAccommodation().getDailyRate());
     }
 
-    private BookingStatus getBookingStatus(BookingStatus.Status status) {
-        return bookingStatusRepository.findByStatus(status).orElseThrow(
-                () -> new EntityNotFoundException(
-                        String.format("Can't retrieve %s from DB)", status)));
-    }
-
-    private PaymentStatus getPaymentStatus(PaymentStatus.Status status) {
-        return paymentStatusRepository.findByStatus(status)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format("Can't retrieve %s from DB)", status)));
-    }
-
     private URL getUrl(String url) {
         try {
             return new URL(url);
         } catch (MalformedURLException ex) {
             throw new UrlCreationException("URL creation failure. " + ex.getMessage());
         }
+    }
+
+    private void sendNotification(Payment payment) {
+        notificationService.sendNotification(payment);
     }
 }

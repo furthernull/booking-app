@@ -3,9 +3,6 @@ INSERT INTO addresses (id, address, city, state, zip_code, country, is_deleted) 
 
 SELECT SETVAL('addresses_id_seq', (SELECT MAX(id) FROM addresses));
 
-INSERT INTO accommodation_types (id, name) VALUES
-                                               (1, 'APARTMENT');
-
 INSERT INTO amenity_types (id, name) VALUES
                                          (1, 'PARKING'),
                                          (2, 'CAR_CHARGER'),
@@ -16,8 +13,8 @@ INSERT INTO amenity_types (id, name) VALUES
                                          (7, 'GYM'),
                                          (8, 'CAFE');
 
-INSERT INTO accommodations (id, type_id, location_id, size, daily_rate, availability, is_deleted) VALUES
-    (1, 1, 1, 'Studio', 10.00, 1, false);
+INSERT INTO accommodations (id, type, location_id, size, daily_rate, availability, is_deleted) VALUES
+    (1, 'APARTMENT', 1, 'Studio', 10.00, 1, false);
 
 SELECT SETVAL('accommodations_id_seq', (SELECT MAX(id) FROM accommodations));
 
@@ -41,26 +38,15 @@ INSERT INTO users_roles (user_id, role_id) VALUES
 
 SELECT SETVAL('users_id_seq', (SELECT MAX(id) FROM users));
 
-INSERT INTO booking_statuses (id, status) VALUES
-                                              (1, 'PENDING'),
-                                              (2, 'CONFIRMED'),
-                                              (3, 'CANCELLED'),
-                                              (4, 'EXPIRED');
-
-INSERT INTO bookings (id, check_in_date, check_out_date, accommodation_id, user_id, status_id, is_deleted) VALUES
-    (1, CURRENT_DATE + INTERVAL '1 day', CURRENT_DATE + INTERVAL '1 month', 1, 2, 1, false),
-    (2, CURRENT_DATE + INTERVAL '1 month', CURRENT_DATE + INTERVAL '1 year', 1, 2, 1, false);
+INSERT INTO bookings (id, check_in_date, check_out_date, accommodation_id, user_id, status, is_deleted) VALUES
+    (1, CURRENT_DATE + INTERVAL '1 day', CURRENT_DATE + INTERVAL '1 month', 1, 2, 'PENDING', false),
+    (2, CURRENT_DATE + INTERVAL '1 month', CURRENT_DATE + INTERVAL '1 year', 1, 2, 'PENDING', false);
 
 SELECT SETVAL('bookings_id_seq', (SELECT MAX(id) FROM bookings));
 
-INSERT INTO payment_statuses (id, status) VALUES
-    (1, 'PENDING'),
-     (2, 'PAID'),
-     (3, 'EXPIRED');
-
-INSERT INTO payments (id, status_id, booking_id, session_url, session_id, amount_to_pay, is_deleted) VALUES
-    (1, 1, 1, 'https://www.example.com', 'sessionIdPending', 100, false),
-    (2, 3, 1, 'https://www.example.com', 'sessionIdExpired', 100, false),
-    (3, 2, 2, 'https://www.example.com', 'sessionIdPaid', 100, false);
+INSERT INTO payments (id, status, booking_id, session_url, session_id, amount_to_pay, is_deleted) VALUES
+    (1, 'PENDING', 1, 'https://www.example.com', 'sessionIdPending', 100, false),
+    (2, 'EXPIRED', 1, 'https://www.example.com', 'sessionIdExpired', 100, false),
+    (3, 'PAID', 2, 'https://www.example.com', 'sessionIdPaid', 100, false);
 
 SELECT SETVAL('payments_id_seq', (SELECT MAX(id) FROM payments));

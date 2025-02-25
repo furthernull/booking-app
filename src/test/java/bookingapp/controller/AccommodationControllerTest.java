@@ -1,6 +1,7 @@
 package bookingapp.controller;
 
 import static bookingapp.test.TestUtils.ACCOMMODATION_REQUEST_DTO_STUDIO;
+import static bookingapp.test.TestUtils.TYPE_CONDO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -137,7 +138,7 @@ class AccommodationControllerTest {
     void update_ValidAccommodationRequest_ReturnUpdatedAccommodation() throws Exception {
         Long id = 2L;
         AccommodationRequestDto updateRequestDto = new AccommodationRequestDto(
-                2L,
+                TYPE_CONDO,
                 new AddressRequestDto(
                         "23 Shevchenko",
                         "Lviv",

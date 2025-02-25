@@ -12,7 +12,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Page<Payment> findAll(Pageable pageable);
 
     @Query("SELECT p FROM Payment p "
-            + "JOIN FETCH p.status "
             + "JOIN FETCH p.booking b "
             + "JOIN FETCH b.user u "
             + "WHERE u.id = :userId")
@@ -24,6 +23,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             + "WHERE p.sessionId = :sessionId")
     Optional<Payment> findBySessionId(String sessionId);
 
-    @Query("SELECT p FROM Payment p WHERE p.status.status = 'PENDING'")
+    @Query("SELECT p FROM Payment p WHERE p.status = 'PENDING'")
     List<Payment> findPendingPayments();
 }

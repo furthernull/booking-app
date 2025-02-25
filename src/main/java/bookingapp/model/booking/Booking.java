@@ -4,6 +4,8 @@ import bookingapp.model.accommodation.Accommodation;
 import bookingapp.model.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -37,9 +39,16 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_id", nullable = false)
-    private BookingStatus status;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status;
     @Column(nullable = false)
     private boolean isDeleted = false;
+
+    public enum Status {
+        PENDING,
+        CONFIRMED,
+        CANCELLED,
+        EXPIRED
+    }
 }

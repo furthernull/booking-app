@@ -2,6 +2,8 @@ package bookingapp.model.accommodation;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,9 +35,9 @@ public class Accommodation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "type_id", nullable = false)
-    private AccommodationType type;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Type type;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)
     private Address location;
@@ -54,4 +56,11 @@ public class Accommodation {
     private Integer availability;
     @Column(nullable = false)
     private boolean isDeleted = false;
+
+    public enum Type {
+        HOUSE,
+        APARTMENT,
+        CONDO,
+        VACATION_HOME
+    }
 }

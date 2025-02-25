@@ -14,13 +14,10 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: type_id
-                  type: bigint
+                  name: type
+                  type: varchar(50)
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_accommodations_accommodation_types
-                    referencedTableName: accommodation_types
-                    referencedColumnNames: id
               - column:
                   name: location_id
                   type: bigint

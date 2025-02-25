@@ -1,6 +1,7 @@
 package bookingapp.dto.accommodation;
 
 import bookingapp.dto.address.AddressRequestDto;
+import bookingapp.model.accommodation.Accommodation;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -9,8 +10,7 @@ import java.util.Set;
 
 public record AccommodationRequestDto(
         @NotNull
-        @Positive
-        Long accommodationTypeId,
+        Accommodation.Type accommodationType,
         @NotNull
         AddressRequestDto address,
         @NotBlank

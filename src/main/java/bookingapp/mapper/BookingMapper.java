@@ -19,7 +19,7 @@ public interface BookingMapper {
 
     @Mapping(target = "accommodationId", source = "accommodation.id")
     @Mapping(target = "customerId", source = "user.id")
-    @Mapping(target = "bookingStatusId", source = "status.id")
+    @Mapping(target = "bookingStatus", source = "status")
     BookingResponseDto toDto(Booking booking);
 
     List<BookingResponseDto> toDto(Iterable<Booking> bookings);

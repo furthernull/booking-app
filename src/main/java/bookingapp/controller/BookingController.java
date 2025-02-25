@@ -4,7 +4,7 @@ import bookingapp.dto.booking.BookingFilterParameters;
 import bookingapp.dto.booking.BookingRequestDto;
 import bookingapp.dto.booking.BookingResponseDto;
 import bookingapp.dto.booking.BookingUpdateRequestDto;
-import bookingapp.model.booking.BookingStatus;
+import bookingapp.model.booking.Booking;
 import bookingapp.model.user.User;
 import bookingapp.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,7 +52,7 @@ public class BookingController {
             description = "retrieves bookings based on user id and their status")
     public List<BookingResponseDto> getBookingsByIdAndStatus(
             @RequestParam(name = "user_id", required = false) Long userId,
-            @RequestParam(name = "status") BookingStatus.Status status,
+            @RequestParam(name = "status") Booking.Status status,
             @PageableDefault Pageable pageable) {
         return bookingService.filter(new BookingFilterParameters(userId, status), pageable);
     }

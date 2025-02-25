@@ -17,12 +17,9 @@ public interface UserMapper {
     @Mapping(target = "password", ignore = true)
     User toModel(UserRegistrationRequestDto requestDto);
 
-    @Mapping(target = "email", nullValuePropertyMappingStrategy
-            = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "firstName", nullValuePropertyMappingStrategy
             = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "lastName", nullValuePropertyMappingStrategy
             = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "password", ignore = true)
     void updateUser(@MappingTarget User user, UserUpdateRequestDto requestDto);
 }

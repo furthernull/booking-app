@@ -11,12 +11,10 @@ import bookingapp.exception.IllegalStateException;
 import bookingapp.mapper.BookingMapper;
 import bookingapp.model.accommodation.Accommodation;
 import bookingapp.model.booking.Booking;
-import bookingapp.model.booking.BookingStatus;
 import bookingapp.model.user.User;
 import bookingapp.repository.accommodation.AccommodationRepository;
 import bookingapp.repository.booking.BookingRepository;
 import bookingapp.repository.booking.BookingSpecificationBuilder;
-import bookingapp.repository.bookingstatus.BookingStatusRepository;
 import bookingapp.service.BookingService;
 import bookingapp.service.NotificationService;
 import java.time.LocalDate;
@@ -32,13 +30,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class BookingServiceImpl implements BookingService {
-    private static final BookingStatus.Status PENDING_STATUS = BookingStatus.Status.PENDING;
-    private static final BookingStatus.Status CANCELLED_STATUS = BookingStatus.Status.CANCELLED;
-    private static final BookingStatus.Status EXPIRED_STATUS = BookingStatus.Status.EXPIRED;
+    private static final Booking.Status PENDING_STATUS = Booking.Status.PENDING;
+    private static final Booking.Status CANCELLED_STATUS = Booking.Status.CANCELLED;
+    private static final Booking.Status EXPIRED_STATUS = Booking.Status.EXPIRED;
     private final AccommodationRepository accommodationRepository;
     private final BookingMapper bookingMapper;
     private final BookingRepository bookingRepository;
-    private final BookingStatusRepository bookingStatusRepository;
     private final BookingSpecificationBuilder bookingSpecificationBuilder;
     private final NotificationService notificationService;
 
@@ -58,13 +55,9 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingMapper.toModel(requestDto);
         booking.setAccommodation(fetchAccommodation(requestDto.accommodationId()));
         booking.setUser(user);
-        BookingStatus status = bookingStatusRepository.findByStatus(
-                PENDING_STATUS).orElseThrow(
-                        () -> new EntityNotFoundException(
-                                "Can't retrieve status PENDING from DB"));
-        booking.setStatus(status);
+        booking.setStatus(PENDING_STATUS);
         bookingRepository.save(booking);
-        notificationService.sendNotification(user.getId(), booking);
+        sendNotification(user.getId(), booking);
         return bookingMapper.toDto(booking);
     }
 
@@ -118,14 +111,10 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findByIdAndUserId(id, userId).orElseThrow(
                 () -> new EntityNotFoundException("Can't cancel Booking with id " + id)
         );
-        if (booking.getStatus().getStatus().equals(CANCELLED_STATUS)) {
+        if (booking.getStatus().equals(CANCELLED_STATUS)) {
             throw new IllegalStateException("Booking has already been canceled");
         }
-        BookingStatus status = bookingStatusRepository.findByStatus(CANCELLED_STATUS)
-                .orElseThrow(
-                        () -> new EntityNotFoundException("Can't retrieve Status CANCELED")
-                );
-        booking.setStatus(status);
+        booking.setStatus(CANCELLED_STATUS);
         bookingRepository.save(booking);
     }
 
@@ -133,16 +122,12 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public void processExpiredBooking() {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
-        BookingStatus status = bookingStatusRepository.findByStatus(
-                EXPIRED_STATUS).orElseThrow(
-                        () -> new EntityNotFoundException(
-                                "Can't retrieve status PENDING from DB"));
         List<Booking> expiredBookings = bookingRepository.findExpiringBookings(tomorrow);
         expiredBookings.forEach(booking -> {
-            booking.setStatus(status);
+            booking.setStatus(EXPIRED_STATUS);
             bookingRepository.save(booking);
         });
-        notificationService.sendNotification(expiredBookings);
+        sendNotification(expiredBookings);
     }
 
     private void checkPendingBooking(User user) {
@@ -183,5 +168,13 @@ public class BookingServiceImpl implements BookingService {
 
     private Accommodation fetchAccommodation(Long accommodationId) {
         return accommodationRepository.getReferenceById(accommodationId);
+    }
+
+    private void sendNotification(Long userId, Booking booking) {
+        notificationService.sendNotification(userId, booking);
+    }
+
+    private void sendNotification(List<Booking> expiredBookings) {
+        notificationService.sendNotification(expiredBookings);
     }
 }

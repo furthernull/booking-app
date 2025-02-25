@@ -15,7 +15,7 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(config = MapperConfig.class, uses = AddressMapper.class)
 public interface AccommodationMapper {
-    @Mapping(target = "type", source = "type.id")
+    @Mapping(target = "type", source = "type")
     @Mapping(target = "location", source = "location.id")
     @Mapping(target = "amenityIds", ignore = true)
     AccommodationDto toDto(Accommodation accommodation);
@@ -33,12 +33,12 @@ public interface AccommodationMapper {
         accommodationDto.setAmenityIds(ids);
     }
 
-    @Mapping(source = "accommodationTypeId", target = "type.id")
+    @Mapping(source = "accommodationType", target = "type")
     @Mapping(source = "address", target = "location")
     @Mapping(target = "amenities", ignore = true)
     Accommodation toModel(AccommodationRequestDto requestDto);
 
-    @Mapping(target = "type.id", source = "accommodationTypeId")
+    @Mapping(target = "type", source = "accommodationType")
     @Mapping(target = "amenities", ignore = true)
     @Mapping(target = "location", source = "address")
     void updateModel(@MappingTarget Accommodation accommodation,

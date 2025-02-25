@@ -16,7 +16,7 @@ public interface PaymentMapper {
     @Mapping(target = "sessionUrl", ignore = true)
     Payment toModel(PaymentRequestDto requestDto);
 
-    @Mapping(target = "paymentStatus", source = "payment.status.status")
+    @Mapping(target = "paymentStatus", source = "payment.status")
     @Mapping(target = "bookingId", source = "booking.id")
     @Mapping(target = "amount", source = "amountToPay")
     PaymentResponse toDto(Payment payment);

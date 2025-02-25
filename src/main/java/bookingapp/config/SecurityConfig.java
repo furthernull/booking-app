@@ -45,11 +45,15 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         auth -> auth
-                                .requestMatchers(HttpMethod.GET, "/accommodations/**").permitAll()
-                                .requestMatchers("/accommodations/**").hasAuthority("ADMIN")
-                                .requestMatchers("/auth/**", "/error").permitAll()
-                                .anyRequest()
-                                .authenticated()
+                                .requestMatchers(
+                                        "/auth/**",
+                                        "/swagger-ui/**",
+                                        "/v3/api-docs/**",
+                                        "/error")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/accommodations/**")
+                                .permitAll()
+                                .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults())
                 .sessionManagement(session -> session

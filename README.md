@@ -14,20 +14,20 @@ experience housing rentals.
 
 ### Technologies & tools
 ___
-* Java
-* Spring Boot
-* Spring Security
-* Spring Data JPA
-* Docker
-* JWT
-* Junit
-* Liquibase
-* Lombok
-* Mapstruct
-* Postgres
-* Swagger
-* Telegram Api
-* Stripe Api
+* Java 17
+* Spring Boot 3.3.5
+* Spring Security 3.3.5
+* Spring Data JPA 3.3.5
+* Docker 27.5.1
+* JWT 0.12.5
+* Junit 5.10.5
+* Liquibase 4.27.0
+* Lombok 0.2.0
+* Mapstruct 1.5.5
+* Postgres 42.7.4
+* Swagger 2.6.0
+* Telegram Api 6.9.7.1
+* Stripe Api 28.0.0
 
 ### Architecture
 ___

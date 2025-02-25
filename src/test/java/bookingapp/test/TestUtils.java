@@ -14,13 +14,10 @@ import bookingapp.dto.user.UserResponseDto;
 import bookingapp.dto.user.UserUpdateRequestDto;
 import bookingapp.dto.user.UserUpdateRoleRequestDto;
 import bookingapp.model.accommodation.Accommodation;
-import bookingapp.model.accommodation.AccommodationType;
 import bookingapp.model.accommodation.Address;
 import bookingapp.model.accommodation.AmenityType;
 import bookingapp.model.booking.Booking;
-import bookingapp.model.booking.BookingStatus;
 import bookingapp.model.payment.Payment;
-import bookingapp.model.payment.PaymentStatus;
 import bookingapp.model.telegram.TelegramChat;
 import bookingapp.model.user.Role;
 import bookingapp.model.user.User;
@@ -80,14 +77,12 @@ public class TestUtils {
     public static final String ACCOMMODATION_SIZE_ONE_BEDROOM = "1 Bedroom";
     public static final String ACCOMMODATION_SIZE_TWO_BEDROOM = "2 Bedroom";
 
-    public static final AccommodationType.Type TYPE_APARTMENT = AccommodationType.Type.APARTMENT;
-    public static final AccommodationType.Type TYPE_CONDO = AccommodationType.Type.CONDO;
-    public static final AccommodationType.Type TYPE_HOUSE = AccommodationType.Type.HOUSE;
-
-    public static final AccommodationType ACCOMMODATION_TYPE_APARTMENT =
-            getAccommodationTypeApartment();
-    public static final AccommodationType ACCOMMODATION_TYPE_CONDO = getAccommodationTypeCondo();
-    public static final AccommodationType ACCOMMODATION_TYPE_HOUSE = getAccommodationTypeHouse();
+    public static final Accommodation.Type TYPE_APARTMENT =
+            Accommodation.Type.valueOf("APARTMENT");
+    public static final Accommodation.Type TYPE_CONDO =
+            Accommodation.Type.valueOf("CONDO");
+    public static final Accommodation.Type TYPE_HOUSE =
+            Accommodation.Type.valueOf("HOUSE");
 
     public static final AddressRequestDto ADDRESS_REQUEST_DTO = new AddressRequestDto(
             ADDRESS_FIELD, CITY_FIELD, STATE_FIELD, ZIP_FIELD, COUNTRY_FIELD
@@ -137,7 +132,7 @@ public class TestUtils {
 
     public static final AccommodationRequestDto ACCOMMODATION_REQUEST_DTO_STUDIO =
             new AccommodationRequestDto(
-                    DEFAULT_ID_ONE,
+                    TYPE_APARTMENT,
                     ADDRESS_REQUEST_DTO,
                     ACCOMMODATION_SIZE_STUDIO,
                     AMENITY_IDS_SET,
@@ -147,7 +142,7 @@ public class TestUtils {
 
     public static final AccommodationRequestDto ACCOMMODATION_UPDATE_REQUEST_DTO_HOUSE =
             new AccommodationRequestDto(
-                    DEFAULT_ID_THREE,
+                    TYPE_HOUSE,
                     ADDRESS_REQUEST_DTO,
                     ACCOMMODATION_SIZE_TWO_BEDROOM,
                     AMENITY_IDS_SET,
@@ -197,11 +192,8 @@ public class TestUtils {
 
     public static final UserUpdateRequestDto USER_UPDATE_REQUEST_DTO =
             new UserUpdateRequestDto(
-                    SECOND_CUSTOMER_EMAIL_FIELD,
                     SECOND_CUSTOMER_FIRST_NAME_FIELD,
-                    SECOND_CUSTOMER_LAST_NAME_FIELD,
-                    SECOND_CUSTOMER_PASSWORD_FIELD,
-                    SECOND_CUSTOMER_PASSWORD_CONFIRMATION_FIELD
+                    SECOND_CUSTOMER_LAST_NAME_FIELD
             );
 
     public static final User USER_ADMIN = getUserAdmin();
@@ -230,15 +222,10 @@ public class TestUtils {
             SECOND_CUSTOMER_EMAIL_FIELD
     );
 
-    public static final BookingStatus.Status STATUS_PENDING = BookingStatus.Status.PENDING;
-    public static final BookingStatus.Status STATUS_CONFIRMED = BookingStatus.Status.CONFIRMED;
-    public static final BookingStatus.Status STATUS_CANCELLED = BookingStatus.Status.CANCELLED;
-    public static final BookingStatus.Status STATUS_EXPIRED = BookingStatus.Status.EXPIRED;
-
-    public static final BookingStatus BOOKING_STATUS_PENDING = getBookingStatusPending();
-    public static final BookingStatus BOOKING_STATUS_CONFIRMED = getBookingStatusConfirmed();
-    public static final BookingStatus BOOKING_STATUS_CANCELLED = getBookingStatusCancelled();
-    public static final BookingStatus BOOKING_STATUS_EXPIRED = getBookingStatusExpired();
+    public static final Booking.Status BOOKING_STATUS_PENDING = Booking.Status.PENDING;
+    public static final Booking.Status BOOKING_STATUS_CONFIRMED = Booking.Status.CONFIRMED;
+    public static final Booking.Status BOOKING_STATUS_CANCELLED = Booking.Status.CANCELLED;
+    public static final Booking.Status BOOKING_STATUS_EXPIRED = Booking.Status.EXPIRED;
 
     public static final LocalDate DEFAULT_CHECK_IN_DATE = LocalDate.now().plusDays(1);
     public static final LocalDate DEFAULT_CHECK_OUT_DATE = LocalDate.now().plusMonths(1);
@@ -265,13 +252,13 @@ public class TestUtils {
                 DEFAULT_CHECK_OUT_DATE,
                 DEFAULT_ID_ONE,
                 DEFAULT_ID_TWO,
-                DEFAULT_ID_ONE
+                BOOKING_STUDIO_PENDING.getStatus().name()
     );
 
     public static final BookingFilterParameters BOOKING_FILTER_PARAMETERS =
             new BookingFilterParameters(
                     USER_CUSTOMER.getId(),
-                    BOOKING_STUDIO_PENDING.getStatus().getStatus()
+                    BOOKING_STUDIO_PENDING.getStatus()
             );
 
     public static final List<Booking> BOOKING_LIST = List.of(BOOKING_STUDIO_PENDING);
@@ -292,7 +279,7 @@ public class TestUtils {
                     UPDATE_CHECK_OUT_DATE,
                     DEFAULT_ID_ONE,
                     DEFAULT_ID_TWO,
-                    DEFAULT_ID_ONE
+                    BOOKING_STUDIO_PENDING.getStatus().name()
             );
 
     public static final Booking CONFLICTING_BOOKING = getConflictingBooking();
@@ -301,13 +288,9 @@ public class TestUtils {
 
     public static final Booking BOOKING_CONDO_EXPIRED = getExpiredBookingCondo();
 
-    public static final PaymentStatus.Status PENDING = PaymentStatus.Status.PENDING;
-    public static final PaymentStatus.Status PAID = PaymentStatus.Status.PAID;
-    public static final PaymentStatus.Status EXPIRED = PaymentStatus.Status.EXPIRED;
-
-    public static final PaymentStatus PAYMENT_STATUS_PENDING = getPaymentStatusPending();
-    public static final PaymentStatus PAYMENT_STATUS_PAID = getPaymentStatusPaid();
-    public static final PaymentStatus PAYMENT_STATUS_EXPIRED = getPaymentStatusExpired();
+    public static final Payment.Status PAYMENT_STATUS_PENDING = Payment.Status.PENDING;
+    public static final Payment.Status PAYMENT_STATUS_PAID = Payment.Status.PAID;
+    public static final Payment.Status PAYMENT_STATUS_EXPIRED = Payment.Status.EXPIRED;
 
     public static final String SESSION_URL = "http://www.example.com";
     public static final String SESSION_ID = "sessionId";
@@ -336,27 +319,6 @@ public class TestUtils {
     public static final TelegramChat UNSUBSCRIBE_TELEGRAM_CHAT = getUnsubscribedTelegramChat();
 
     private TestUtils() {
-    }
-
-    private static AccommodationType getAccommodationTypeApartment() {
-        AccommodationType accommodationType = new AccommodationType();
-        accommodationType.setId(DEFAULT_ID_ONE);
-        accommodationType.setName(TYPE_APARTMENT);
-        return accommodationType;
-    }
-
-    private static AccommodationType getAccommodationTypeCondo() {
-        AccommodationType accommodationType = new AccommodationType();
-        accommodationType.setId(DEFAULT_ID_TWO);
-        accommodationType.setName(TYPE_CONDO);
-        return accommodationType;
-    }
-
-    private static AccommodationType getAccommodationTypeHouse() {
-        AccommodationType accommodationType = new AccommodationType();
-        accommodationType.setId(DEFAULT_ID_THREE);
-        accommodationType.setName(TYPE_HOUSE);
-        return accommodationType;
     }
 
     private static Address getAddress() {
@@ -429,7 +391,7 @@ public class TestUtils {
     private static Accommodation getAccommodationStudio() {
         Accommodation accommodation = new Accommodation();
         accommodation.setId(DEFAULT_ID_ONE);
-        accommodation.setType(ACCOMMODATION_TYPE_APARTMENT);
+        accommodation.setType(TYPE_APARTMENT);
         accommodation.setLocation(ADDRESS);
         accommodation.setSize(ACCOMMODATION_SIZE_STUDIO);
         accommodation.setAmenities(AMENITY_TYPE_SET);
@@ -441,7 +403,7 @@ public class TestUtils {
     private static Accommodation getAccommodationUpdatedToHouse() {
         Accommodation accommodation = new Accommodation();
         accommodation.setId(DEFAULT_ID_ONE);
-        accommodation.setType(ACCOMMODATION_TYPE_HOUSE);
+        accommodation.setType(TYPE_HOUSE);
         accommodation.setLocation(ADDRESS);
         accommodation.setSize(ACCOMMODATION_SIZE_TWO_BEDROOM);
         accommodation.setAmenities(AMENITY_TYPE_SET);
@@ -453,7 +415,7 @@ public class TestUtils {
     private static Accommodation getAccommodationCondo() {
         Accommodation accommodation = new Accommodation();
         accommodation.setId(DEFAULT_ID_TWO);
-        accommodation.setType(ACCOMMODATION_TYPE_CONDO);
+        accommodation.setType(TYPE_CONDO);
         accommodation.setLocation(ADDRESS);
         accommodation.setSize(ACCOMMODATION_SIZE_ONE_BEDROOM);
         accommodation.setAmenities(AMENITY_TYPE_SET);
@@ -465,7 +427,7 @@ public class TestUtils {
     private static AccommodationDto getAccommodationDtoStudio() {
         AccommodationDto accommodationDto = new AccommodationDto();
         accommodationDto.setId(DEFAULT_ID_ONE);
-        accommodationDto.setType(ACCOMMODATION_TYPE_APARTMENT.getName().name());
+        accommodationDto.setType(TYPE_APARTMENT.name());
         accommodationDto.setLocation(ADDRESS.toString());
         accommodationDto.setSize(ACCOMMODATION_SIZE_STUDIO);
         accommodationDto.setAmenityIds(AMENITY_IDS_SET);
@@ -477,7 +439,7 @@ public class TestUtils {
     private static AccommodationDto getAccommodationDtoUpdatedToHouse() {
         AccommodationDto accommodationDto = new AccommodationDto();
         accommodationDto.setId(DEFAULT_ID_ONE);
-        accommodationDto.setType(ACCOMMODATION_TYPE_HOUSE.getName().name());
+        accommodationDto.setType(TYPE_HOUSE.name());
         accommodationDto.setLocation(ADDRESS.toString());
         accommodationDto.setSize(ACCOMMODATION_SIZE_TWO_BEDROOM);
         accommodationDto.setAmenityIds(AMENITY_IDS_SET);
@@ -542,34 +504,6 @@ public class TestUtils {
         user.setPassword(CUSTOMER_PASSWORD_FIELD);
         user.setRoles(Set.of(ROLE_ADMIN));
         return user;
-    }
-
-    private static BookingStatus getBookingStatusPending() {
-        BookingStatus bookingStatus = new BookingStatus();
-        bookingStatus.setId(DEFAULT_ID_ONE);
-        bookingStatus.setStatus(STATUS_PENDING);
-        return bookingStatus;
-    }
-
-    private static BookingStatus getBookingStatusConfirmed() {
-        BookingStatus bookingStatus = new BookingStatus();
-        bookingStatus.setId(DEFAULT_ID_TWO);
-        bookingStatus.setStatus(STATUS_CONFIRMED);
-        return bookingStatus;
-    }
-
-    private static BookingStatus getBookingStatusCancelled() {
-        BookingStatus bookingStatus = new BookingStatus();
-        bookingStatus.setId(DEFAULT_ID_THREE);
-        bookingStatus.setStatus(STATUS_CANCELLED);
-        return bookingStatus;
-    }
-
-    private static BookingStatus getBookingStatusExpired() {
-        BookingStatus bookingStatus = new BookingStatus();
-        bookingStatus.setId(DEFAULT_ID_FOUR);
-        bookingStatus.setStatus(STATUS_EXPIRED);
-        return bookingStatus;
     }
 
     private static Booking getBookingStudioPending() {
@@ -638,27 +572,6 @@ public class TestUtils {
         return booking;
     }
 
-    private static PaymentStatus getPaymentStatusPending() {
-        PaymentStatus paymentStatus = new PaymentStatus();
-        paymentStatus.setId(DEFAULT_ID_ONE);
-        paymentStatus.setStatus(PENDING);
-        return paymentStatus;
-    }
-
-    private static PaymentStatus getPaymentStatusPaid() {
-        PaymentStatus paymentStatus = new PaymentStatus();
-        paymentStatus.setId(DEFAULT_ID_TWO);
-        paymentStatus.setStatus(PAID);
-        return paymentStatus;
-    }
-
-    private static PaymentStatus getPaymentStatusExpired() {
-        PaymentStatus paymentStatus = new PaymentStatus();
-        paymentStatus.setId(DEFAULT_ID_THREE);
-        paymentStatus.setStatus(EXPIRED);
-        return paymentStatus;
-    }
-
     @SneakyThrows
     private static Payment getPaymentPending() {
         Payment payment = new Payment();
@@ -698,7 +611,7 @@ public class TestUtils {
     private static PaymentResponse getPaymentPendingResponse() {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setId(DEFAULT_ID_ONE);
-        paymentResponse.setPaymentStatus(PAID.name());
+        paymentResponse.setPaymentStatus(PAYMENT_STATUS_PAID.name());
         paymentResponse.setBookingId(String.valueOf(DEFAULT_ID_ONE));
         paymentResponse.setSessionUrl(SESSION_URL);
         paymentResponse.setSessionId(SESSION_ID);
@@ -709,7 +622,7 @@ public class TestUtils {
     private static PaymentResponse getRenewedPaymentPendingResponse() {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setId(DEFAULT_ID_THREE);
-        paymentResponse.setPaymentStatus(PENDING.name());
+        paymentResponse.setPaymentStatus(PAYMENT_STATUS_PENDING.name());
         paymentResponse.setBookingId(String.valueOf(DEFAULT_ID_ONE));
         paymentResponse.setSessionUrl(SESSION_URL);
         paymentResponse.setSessionId(SESSION_ID);
@@ -720,7 +633,7 @@ public class TestUtils {
     private static PaymentResponse getSecondPaymentPendingResponse() {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setId(DEFAULT_ID_TWO);
-        paymentResponse.setPaymentStatus(PENDING.name());
+        paymentResponse.setPaymentStatus(PAYMENT_STATUS_PENDING.name());
         paymentResponse.setBookingId(String.valueOf(DEFAULT_ID_TWO));
         paymentResponse.setSessionUrl(SESSION_URL);
         paymentResponse.setSessionId(SESSION_ID);
@@ -731,7 +644,7 @@ public class TestUtils {
     private static PaymentResponse getPaymentPaidResponse() {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setId(DEFAULT_ID_ONE);
-        paymentResponse.setPaymentStatus(PAID.name());
+        paymentResponse.setPaymentStatus(PAYMENT_STATUS_PAID.name());
         paymentResponse.setBookingId(String.valueOf(DEFAULT_ID_ONE));
         paymentResponse.setSessionUrl(SESSION_URL);
         paymentResponse.setSessionId(SESSION_ID);

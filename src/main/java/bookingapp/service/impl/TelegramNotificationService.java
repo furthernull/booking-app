@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class TelegramNotificationService implements NotificationService {
     private final TelegramBot telegramBot;
     private final TelegramRepository telegramRepository;
 
+    @Async
     @Override
     public void sendNotification(Long userId, Booking booking) {
         Optional<TelegramChat> userChat = getChat(userId);
@@ -33,6 +35,7 @@ public class TelegramNotificationService implements NotificationService {
         }
     }
 
+    @Async
     @Override
     public void sendNotification(Accommodation accommodation) {
         String notification = prepareNotification(accommodation);
@@ -40,6 +43,7 @@ public class TelegramNotificationService implements NotificationService {
                 .forEach(c -> telegramBot.sendMessage(c.getChatId(), notification));
     }
 
+    @Async
     @Override
     public void sendNotification(List<Booking> expiringBookings) {
         if (expiringBookings.isEmpty()) {
@@ -56,6 +60,7 @@ public class TelegramNotificationService implements NotificationService {
         }
     }
 
+    @Async
     @Override
     public void sendNotification(Payment payment) {
         String message = prepareNotification(payment);
@@ -68,7 +73,7 @@ public class TelegramNotificationService implements NotificationService {
     }
 
     private String prepareNotification(Payment payment) {
-        switch (payment.getStatus().getStatus()) {
+        switch (payment.getStatus()) {
             case PAID -> {
                 return String.format(
                         NotificationTemplates.PAYMENT_SUCCESSFUL_MESSAGE,
@@ -90,7 +95,7 @@ public class TelegramNotificationService implements NotificationService {
 
     private String prepareNotification(TelegramChat userChat, Booking booking) {
         StringBuilder notification = new StringBuilder();
-        switch (booking.getStatus().getStatus()) {
+        switch (booking.getStatus()) {
             case PENDING -> notification.append(
                     NotificationTemplates.NOTIFICATION_PENDING_TEMPLATE);
             case CANCELLED -> notification.append(
@@ -106,14 +111,14 @@ public class TelegramNotificationService implements NotificationService {
         return String.format(notification.toString(),
                 userChat.getUser().getFirstName(),
                 userChat.getUser().getLastName(),
-                booking.getStatus().getStatus(),
+                booking.getStatus().name(),
                 booking.getCheckInDate(),
                 booking.getCheckOutDate());
     }
 
     private String prepareNotification(Accommodation accommodation) {
         return String.format(NotificationTemplates.NOTIFICATION_ACCOMMODATION_DETAILS_TEMPLATE,
-                accommodation.getType().getName(),
+                accommodation.getType().name(),
                 accommodation.getSize(),
                 getAmenitiesString(accommodation.getAmenities()),
                 getAddressString(accommodation.getLocation()));

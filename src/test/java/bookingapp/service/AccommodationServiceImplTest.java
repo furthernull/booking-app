@@ -24,7 +24,6 @@ import bookingapp.exception.EntityNotFoundException;
 import bookingapp.mapper.AccommodationMapper;
 import bookingapp.model.accommodation.Accommodation;
 import bookingapp.repository.accommodation.AccommodationRepository;
-import bookingapp.repository.accommodationtype.AccommodationTypeRepository;
 import bookingapp.repository.amenity.AmenityRepository;
 import bookingapp.service.impl.AccommodationServiceImpl;
 import java.util.List;
@@ -42,8 +41,6 @@ class AccommodationServiceImplTest {
     private AccommodationMapper accommodationMapper;
     @Mock
     private AccommodationRepository accommodationRepository;
-    @Mock
-    private AccommodationTypeRepository accommodationTypeRepository;
     @Mock
     private AddressService addressService;
     @Mock

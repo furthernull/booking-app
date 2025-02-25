@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bookingapp.model.booking.Booking;
-import bookingapp.model.booking.BookingStatus;
 import bookingapp.repository.booking.BookingRepository;
 import java.time.LocalDate;
 import java.util.List;
@@ -60,7 +59,7 @@ class BookingRepositoryTest {
         Long accommodationId = 1L;
         LocalDate startDate = LocalDate.now().plusDays(1);
         LocalDate endDate = startDate.plusMonths(1);
-        BookingStatus.Status cancelled = BookingStatus.Status.CANCELLED;
+        Booking.Status cancelled = Booking.Status.CANCELLED;
 
         List<Booking> bookings = bookingRepository
                 .findConflictingBooking(accommodationId, startDate, endDate, cancelled);

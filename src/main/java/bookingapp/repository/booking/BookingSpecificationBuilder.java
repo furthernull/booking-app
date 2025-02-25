@@ -11,17 +11,19 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 public class BookingSpecificationBuilder implements SpecificationBuilder<Booking> {
+    private static final String STATUS_KEY = "status";
+    private static final String USER_KEY = "user";
     private final SpecificationProviderManager<Booking> specificationProviderManager;
 
     @Override
     public Specification<Booking> build(BookingFilterParameters filterParameters) {
         Specification<Booking> spec = Specification.where(null);
         if (filterParameters.status() != null) {
-            spec = spec.and(specificationProviderManager.getSpecificationProvider("status")
-                    .getSpecification(filterParameters.status().toString()));
+            spec = spec.and(specificationProviderManager.getSpecificationProvider(STATUS_KEY)
+                    .getSpecification(filterParameters.status().name()));
         }
         if (filterParameters.userId() != null) {
-            spec = spec.and(specificationProviderManager.getSpecificationProvider("user")
+            spec = spec.and(specificationProviderManager.getSpecificationProvider(USER_KEY)
                     .getSpecification(filterParameters.userId().toString()));
         }
         return spec;

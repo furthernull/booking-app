@@ -5,11 +5,9 @@ import bookingapp.dto.accommodation.AccommodationRequestDto;
 import bookingapp.exception.EntityNotFoundException;
 import bookingapp.mapper.AccommodationMapper;
 import bookingapp.model.accommodation.Accommodation;
-import bookingapp.model.accommodation.AccommodationType;
 import bookingapp.model.accommodation.Address;
 import bookingapp.model.accommodation.AmenityType;
 import bookingapp.repository.accommodation.AccommodationRepository;
-import bookingapp.repository.accommodationtype.AccommodationTypeRepository;
 import bookingapp.repository.amenity.AmenityRepository;
 import bookingapp.service.AccommodationService;
 import bookingapp.service.AddressService;
@@ -27,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccommodationServiceImpl implements AccommodationService {
     private final AccommodationMapper accommodationMapper;
     private final AccommodationRepository accommodationRepository;
-    private final AccommodationTypeRepository accommodationTypeRepository;
     private final AddressService addressService;
     private final AmenityRepository amenityRepository;
     private final NotificationService notificationService;
@@ -36,12 +33,11 @@ public class AccommodationServiceImpl implements AccommodationService {
     @Override
     public AccommodationDto create(AccommodationRequestDto requestDto) {
         Accommodation accommodation = accommodationMapper.toModel(requestDto);
-        accommodation.setType(fetchAccommodationType(requestDto.accommodationTypeId()));
         Address location = addressService.save(requestDto.address());
         accommodation.setLocation(location);
         accommodation.setAmenities(fetchAmenitiesByIds(requestDto.amenityIds()));
         accommodationRepository.save(accommodation);
-        notificationService.sendNotification(accommodation);
+        sendNotification(accommodation);
         return accommodationMapper.toDto(accommodation);
     }
 
@@ -72,8 +68,8 @@ public class AccommodationServiceImpl implements AccommodationService {
         accommodationRepository.deleteById(id);
     }
 
-    private AccommodationType fetchAccommodationType(Long accommodationTypeId) {
-        return accommodationTypeRepository.getReferenceById(accommodationTypeId);
+    private void sendNotification(Accommodation accommodation) {
+        notificationService.sendNotification(accommodation);
     }
 
     private Set<AmenityType> fetchAmenitiesByIds(Set<Long> amenitiesIds) {

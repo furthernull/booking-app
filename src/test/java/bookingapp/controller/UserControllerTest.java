@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -119,15 +120,12 @@ class UserControllerTest {
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     void updateUser_ValidUserUpdateRequestDto_ReturnValidUserResponseDto() throws Exception {
         UserUpdateRequestDto requestDto = new UserUpdateRequestDto(
-                "jane.doe@example.com",
                 "Jane",
-                "Doe",
-                "Qwerty&0",
-                "Qwerty&0"
+                "Doe"
         );
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
-        MvcResult result = mockMvc.perform(put("/users/me")
+        MvcResult result = mockMvc.perform(patch("/users/me")
                         .content(jsonRequest)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
