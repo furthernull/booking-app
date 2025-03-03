@@ -14,7 +14,7 @@ public class NotificationTemplates {
             = "%s %s, you booking was cancelled!\n\nBooking details:\n";
     public static final String NOTIFICATION_EXPIRED_TEMPLATE
             = "%s %s, you booking will expiring tomorrow!\n\n";
-    public static final String NOTIFICATION_DEFAULT_TEMPLATE
+    public static final String NOTIFICATION_CONFIRMED_TEMPLATE
             = "%s, %s!\n\n";
     public static final String NOTIFICATION_BOOKING_DETAILS_TEMPLATE
             = "Booking details:\nStatus: %s\nCheck-in: %s\nCheck-out: %s\n\n";
@@ -23,7 +23,8 @@ public class NotificationTemplates {
     public static final String NOTIFICATION_ADDRESS_TEMPLATE = "%s,\n%s, %s %s, %s";
     public static final String NO_EXPIRED_BOOKINGS_MESSAGE = "No expired bookings today!";
     public static final String PAYMENT_SUCCESSFUL_MESSAGE = "Thanks for your order, %s %s!\n"
-            + "Booking id #%s for $%s has confirmed.";
-    public static final String PAYMENT_CANCELED_MESSAGE = "%s %s, your payment was cancelled,\n"
+            + "Booking id #%s has confirmed.";
+    public static final String PAYMENT_CANCELED_MESSAGE =
+            "%s %s, your payment for booking id #%s was cancelled,\n"
             + "your payment can be made later(but the session is available for only 24 hours)";
 }

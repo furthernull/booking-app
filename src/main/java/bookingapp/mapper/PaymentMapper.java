@@ -1,6 +1,7 @@
 package bookingapp.mapper;
 
 import bookingapp.config.MapperConfig;
+import bookingapp.dto.payment.PaymentNotificationDto;
 import bookingapp.dto.payment.PaymentRequestDto;
 import bookingapp.dto.payment.PaymentResponse;
 import bookingapp.model.payment.Payment;
@@ -22,4 +23,11 @@ public interface PaymentMapper {
     PaymentResponse toDto(Payment payment);
 
     List<PaymentResponse> toDto(Iterable<Payment> payments);
+
+    @Mapping(target = "userId", source = "payment.booking.user.id")
+    @Mapping(target = "bookingId", source = "payment.booking.id")
+    @Mapping(target = "paymentStatus", source = "payment.status")
+    @Mapping(target = "firstName", source = "payment.booking.user.firstName")
+    @Mapping(target = "lastName", source = "payment.booking.user.lastName")
+    PaymentNotificationDto toNotificationDto(Payment payment);
 }

@@ -20,11 +20,17 @@ class RoleRepositoryTest {
 
     @Test
     @DisplayName("Verify findByRole() method could return valid")
-    void findByRole() {
-        Role.RoleName expected = Role.RoleName.CUSTOMER;
+    void findByRole_ValidRole_ReturnsRole() {
+        // Given
+        Role.RoleName expectedRole = Role.RoleName.CUSTOMER;
 
-        Optional<Role> byRole = roleRepository.findByRole(expected);
-        assertTrue(byRole.isPresent());
-        assertEquals(expected, byRole.get().getRole());
+        // When
+        Optional<Role> foundRole = roleRepository.findByRole(expectedRole);
+
+        // Then
+        assertTrue(foundRole.isPresent(), "Role should be present in the database");
+        assertEquals(expectedRole,
+                foundRole.get().getRole(),
+                "Returned role should match the expected role");
     }
 }

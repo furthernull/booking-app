@@ -1,5 +1,6 @@
 package bookingapp.service.impl;
 
+import bookingapp.dto.payment.PaymentNotificationDto;
 import bookingapp.dto.payment.PaymentRequestDto;
 import bookingapp.dto.payment.PaymentResponse;
 import bookingapp.exception.AccessDeniedException;
@@ -79,7 +80,7 @@ public class PaymentServiceImpl implements PaymentService {
             bookingRepository.save(booking);
             paymentRepository.save(payment);
         }
-        sendNotification(payment);
+        sendNotification(paymentMapper.toNotificationDto(payment));
         return paymentMapper.toDto(payment);
     }
 
@@ -87,7 +88,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentResponse handleCancelPayment(String sessionId) {
         Payment payment = getPayment(sessionId);
-        sendNotification(payment);
+        sendNotification(paymentMapper.toNotificationDto(payment));
         return paymentMapper.toDto(payment);
     }
 
@@ -141,7 +142,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-    private void sendNotification(Payment payment) {
-        notificationService.sendNotification(payment);
+    private void sendNotification(PaymentNotificationDto paymentNotificationDto) {
+        notificationService.sendNotification(paymentNotificationDto);
     }
 }

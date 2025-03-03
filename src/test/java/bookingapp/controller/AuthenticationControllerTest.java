@@ -75,35 +75,41 @@ class AuthenticationControllerTest {
     @Test
     @DisplayName("Verify loginUser() method")
     void loginUser_ValidRequest_ShouldReturnToken() throws Exception {
+        // Given
         UserLoginRequestDto userLoginRequestDto = new UserLoginRequestDto(
                 "john.doe@example.com",
                 "Qwerty&0"
         );
-
         String jsonRequest = objectMapper.writeValueAsString(userLoginRequestDto);
+
+        // When
         MvcResult result = mockMvc.perform(post("/auth/login")
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Then
         UserLoginResponseDto userLoginResponseDto = objectMapper
                 .readValue(result.getResponse().getContentAsString(), UserLoginResponseDto.class);
         assertNotNull(userLoginResponseDto);
         assertNotNull(userLoginResponseDto.token());
-
     }
 
     @Test
     @DisplayName("Verify registerUser() method")
     void registerUser_ValidRequest_ShouldReturnUserResponseDto() throws Exception {
+        // Given
         String jsonRequest = objectMapper.writeValueAsString(SECOND_USER_REGISTRATION_REQUEST_DTO);
+
+        // When
         MvcResult result = mockMvc.perform(post("/auth/registration")
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Then
         UserResponseDto userResponseDto = objectMapper
                 .readValue(result.getResponse().getContentAsString(), UserResponseDto.class);
         assertNotNull(userResponseDto);

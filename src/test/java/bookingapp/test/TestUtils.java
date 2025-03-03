@@ -1,9 +1,11 @@
 package bookingapp.test;
 
 import bookingapp.dto.accommodation.AccommodationDto;
+import bookingapp.dto.accommodation.AccommodationNotificationDto;
 import bookingapp.dto.accommodation.AccommodationRequestDto;
 import bookingapp.dto.address.AddressRequestDto;
 import bookingapp.dto.booking.BookingFilterParameters;
+import bookingapp.dto.booking.BookingNotificationDto;
 import bookingapp.dto.booking.BookingRequestDto;
 import bookingapp.dto.booking.BookingResponseDto;
 import bookingapp.dto.booking.BookingUpdateRequestDto;
@@ -52,6 +54,8 @@ public class TestUtils {
     public static final String STATE_FIELD = "State";
     public static final String ZIP_FIELD = "12345";
     public static final String COUNTRY_FIELD = "Country";
+
+    public static final String LOCATION_STRING = "Address,\nCity, State 12345, Country";
 
     public static final String ADMIN_FIRST_NAME_FIELD = "Admin";
     public static final String ADMIN_LAST_NAME_FIELD = "Admin";
@@ -108,6 +112,9 @@ public class TestUtils {
     public static final AmenityType AMENITY_TYPE_GYM = getAmenityTypeGym();
     public static final AmenityType AMENITY_TYPE_CAFE = getAmenityTypeCafe();
 
+    public static final String AMENITIES_STRING =
+            "PARKING, CAR_CHARGER, PETS, WI_FI, POOL, SPA, GYM, CAFE";
+
     public static final Set<Long> AMENITY_IDS_SET = Set.of(
             DEFAULT_ID_ONE,
             DEFAULT_ID_TWO,
@@ -156,6 +163,14 @@ public class TestUtils {
     public static final Accommodation ACCOMMODATION_CONDO = getAccommodationCondo();
 
     public static final AccommodationDto ACCOMMODATION_DTO_STUDIO = getAccommodationDtoStudio();
+    public static final AccommodationNotificationDto ACCOMMODATION_NOTIFICATION_DTO =
+            new AccommodationNotificationDto(
+                    "APARTMENT",
+                    ACCOMMODATION_SIZE_STUDIO,
+                    AMENITIES_STRING,
+                    LOCATION_STRING
+                    );
+
     public static final AccommodationDto ACCOMMODATION_DTO_UPDATED_TO_HOUSE =
             getAccommodationDtoUpdatedToHouse();
 
@@ -244,6 +259,15 @@ public class TestUtils {
 
     public static final Booking BOOKING_STUDIO_PENDING = getBookingStudioPending();
     public static final Booking BOOKING_STUDIO_CONFIRMED = getBookingStudioConfirmed();
+
+    public static final BookingNotificationDto BOOKING_NOTIFICATION_DTO =
+            new BookingNotificationDto(
+                    DEFAULT_ID_ONE,
+                    "PENDING",
+                    DEFAULT_CHECK_IN_DATE,
+                    DEFAULT_CHECK_OUT_DATE,
+                    ACCOMMODATION_NOTIFICATION_DTO
+    );
 
     public static final BookingResponseDto BOOKING_STUDIO_RESPONSE_DTO =
             new BookingResponseDto(

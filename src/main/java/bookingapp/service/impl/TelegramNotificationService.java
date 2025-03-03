@@ -1,51 +1,55 @@
 package bookingapp.service.impl;
 
-import bookingapp.model.accommodation.Accommodation;
-import bookingapp.model.accommodation.Address;
-import bookingapp.model.accommodation.AmenityType;
-import bookingapp.model.booking.Booking;
-import bookingapp.model.payment.Payment;
+import bookingapp.dto.accommodation.AccommodationNotificationDto;
+import bookingapp.dto.booking.BookingNotificationDto;
+import bookingapp.dto.payment.PaymentNotificationDto;
 import bookingapp.model.telegram.TelegramChat;
 import bookingapp.repository.telegram.TelegramRepository;
 import bookingapp.service.NotificationService;
 import bookingapp.telegram.NotificationTemplates;
 import bookingapp.telegram.TelegramBot;
+import bookingapp.telegram.strategy.booking.BookingNotificationProviderManager;
+import bookingapp.telegram.strategy.payment.PaymentNotificationProviderManager;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
 public class TelegramNotificationService implements NotificationService {
-    public static final String AMENITIES_DELIMITER = ", ";
+    private final BookingNotificationProviderManager bookingNotificationProviderManager;
+    private final PaymentNotificationProviderManager paymentNotificationProviderManager;
     private final TelegramBot telegramBot;
     private final TelegramRepository telegramRepository;
 
     @Async
+    @Transactional
     @Override
-    public void sendNotification(Long userId, Booking booking) {
-        Optional<TelegramChat> userChat = getChat(userId);
-        if (userChat.isPresent() && userChat.get().isSubscribed()) {
-            String notification = prepareNotification(userChat.get(), booking);
-            telegramBot.sendMessage(userChat.get().getChatId(), notification);
-        }
+    public void sendNotification(BookingNotificationDto bookingNotificationDto) {
+        getChat(bookingNotificationDto.userId()).filter(TelegramChat::isSubscribed)
+                .ifPresent(chat ->
+                        telegramBot.sendMessage(
+                                chat.getChatId(),
+                                prepareNotification(chat, bookingNotificationDto
+                                )));
     }
 
     @Async
+    @Transactional
     @Override
-    public void sendNotification(Accommodation accommodation) {
-        String notification = prepareNotification(accommodation);
+    public void sendNotification(AccommodationNotificationDto accommodationNotificationDto) {
+        String notification = prepareNotification(accommodationNotificationDto);
         telegramRepository.findAllByIsSubscribedIsTrue()
                 .forEach(c -> telegramBot.sendMessage(c.getChatId(), notification));
     }
 
     @Async
+    @Transactional
     @Override
-    public void sendNotification(List<Booking> expiringBookings) {
+    public void sendNotification(List<BookingNotificationDto> expiringBookings) {
         if (expiringBookings.isEmpty()) {
             List<TelegramChat> admins = telegramRepository.fetchAdminChats();
             admins.forEach(admin -> {
@@ -53,89 +57,59 @@ public class TelegramNotificationService implements NotificationService {
                         admin.getChatId(), NotificationTemplates.NO_EXPIRED_BOOKINGS_MESSAGE);
             });
         } else {
-            expiringBookings.forEach(booking -> {
-                sendNotification(booking.getUser().getId(), booking);
-                sendNotification(booking.getAccommodation());
+            expiringBookings.forEach(bookingNotificationDto -> {
+                sendNotification(bookingNotificationDto);
+                sendNotification(bookingNotificationDto.accommodation());
             });
         }
     }
 
     @Async
+    @Transactional
     @Override
-    public void sendNotification(Payment payment) {
-        String message = prepareNotification(payment);
-        Optional<TelegramChat> userChat = getChat(payment.getBooking().getUser().getId());
-        userChat.ifPresent(c -> telegramBot.sendMessage(c.getChatId(), message));
+    public void sendNotification(PaymentNotificationDto paymentNotificationDto) {
+        Optional<TelegramChat> userChat = getChat(paymentNotificationDto.userId());
+        userChat.ifPresent(
+                c -> telegramBot.sendMessage(
+                        c.getChatId(),
+                        prepareNotification(paymentNotificationDto)));
     }
 
     private Optional<TelegramChat> getChat(Long userId) {
         return telegramRepository.findByUserId(userId);
     }
 
-    private String prepareNotification(Payment payment) {
-        switch (payment.getStatus()) {
-            case PAID -> {
-                return String.format(
-                        NotificationTemplates.PAYMENT_SUCCESSFUL_MESSAGE,
-                        payment.getBooking().getUser().getFirstName(),
-                        payment.getBooking().getUser().getLastName(),
-                        payment.getBooking().getId(),
-                        payment.getAmountToPay()
-                        );
-            }
-            default -> {
-                return String.format(
-                        NotificationTemplates.PAYMENT_CANCELED_MESSAGE,
-                        payment.getBooking().getUser().getFirstName(),
-                        payment.getBooking().getUser().getLastName()
-                );
-            }
-        }
-    }
+    private String prepareNotification(
+            TelegramChat userChat,
+            BookingNotificationDto bookingNotificationDto
+    ) {
+        String notification = bookingNotificationProviderManager
+                .getNotificationProvider(bookingNotificationDto.bookingStatus()).getNotification()
+                + NotificationTemplates.NOTIFICATION_BOOKING_DETAILS_TEMPLATE
+                + prepareNotification(bookingNotificationDto.accommodation());
 
-    private String prepareNotification(TelegramChat userChat, Booking booking) {
-        StringBuilder notification = new StringBuilder();
-        switch (booking.getStatus()) {
-            case PENDING -> notification.append(
-                    NotificationTemplates.NOTIFICATION_PENDING_TEMPLATE);
-            case CANCELLED -> notification.append(
-                    NotificationTemplates.NOTIFICATION_CANCEL_TEMPLATE);
-            case EXPIRED -> notification.append(
-                    NotificationTemplates.NOTIFICATION_EXPIRED_TEMPLATE);
-            default -> notification.append(
-                    NotificationTemplates.NOTIFICATION_DEFAULT_TEMPLATE);
-        }
-        notification.append(NotificationTemplates.NOTIFICATION_BOOKING_DETAILS_TEMPLATE)
-                .append(prepareNotification(booking.getAccommodation()));
-
-        return String.format(notification.toString(),
+        return String.format(notification,
                 userChat.getUser().getFirstName(),
                 userChat.getUser().getLastName(),
-                booking.getStatus().name(),
-                booking.getCheckInDate(),
-                booking.getCheckOutDate());
+                bookingNotificationDto.bookingStatus(),
+                bookingNotificationDto.checkInDate(),
+                bookingNotificationDto.checkOutDate());
     }
 
-    private String prepareNotification(Accommodation accommodation) {
+    private String prepareNotification(AccommodationNotificationDto accommodationNotificationDto) {
         return String.format(NotificationTemplates.NOTIFICATION_ACCOMMODATION_DETAILS_TEMPLATE,
-                accommodation.getType().name(),
-                accommodation.getSize(),
-                getAmenitiesString(accommodation.getAmenities()),
-                getAddressString(accommodation.getLocation()));
+                accommodationNotificationDto.accommodationTypeName(),
+                accommodationNotificationDto.accommodationSize(),
+                accommodationNotificationDto.amenities(),
+                accommodationNotificationDto.location());
     }
 
-    private String getAmenitiesString(Set<AmenityType> amenities) {
-        return amenities.stream()
-                .map(e -> e.getName().name())
-                .collect(Collectors.joining(AMENITIES_DELIMITER));
-    }
-
-    private String getAddressString(Address address) {
-        return String.format(NotificationTemplates.NOTIFICATION_ADDRESS_TEMPLATE,
-                address.getAddress(),
-                address.getCity(),
-                address.getState(),
-                address.getZipCode(),
-                address.getCountry());
+    private String prepareNotification(PaymentNotificationDto paymentNotificationDto) {
+        String notification = paymentNotificationProviderManager
+                .getNotificationProvider(paymentNotificationDto.paymentStatus()).getNotification();
+        return String.format(notification,
+                paymentNotificationDto.firstName(),
+                paymentNotificationDto.lastName(),
+                paymentNotificationDto.bookingId());
     }
 }

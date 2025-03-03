@@ -1,6 +1,7 @@
 package bookingapp.service.impl;
 
 import bookingapp.dto.booking.BookingFilterParameters;
+import bookingapp.dto.booking.BookingNotificationDto;
 import bookingapp.dto.booking.BookingRequestDto;
 import bookingapp.dto.booking.BookingResponseDto;
 import bookingapp.dto.booking.BookingUpdateRequestDto;
@@ -57,7 +58,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setUser(user);
         booking.setStatus(PENDING_STATUS);
         bookingRepository.save(booking);
-        sendNotification(user.getId(), booking);
+        sendNotification(bookingMapper.toNotificationDto(booking));
         return bookingMapper.toDto(booking);
     }
 
@@ -127,7 +128,7 @@ public class BookingServiceImpl implements BookingService {
             booking.setStatus(EXPIRED_STATUS);
             bookingRepository.save(booking);
         });
-        sendNotification(expiredBookings);
+        sendNotification(bookingMapper.toNotificationDto(expiredBookings));
     }
 
     private void checkPendingBooking(User user) {
@@ -170,11 +171,11 @@ public class BookingServiceImpl implements BookingService {
         return accommodationRepository.getReferenceById(accommodationId);
     }
 
-    private void sendNotification(Long userId, Booking booking) {
-        notificationService.sendNotification(userId, booking);
+    private void sendNotification(BookingNotificationDto bookingNotificationDto) {
+        notificationService.sendNotification(bookingNotificationDto);
     }
 
-    private void sendNotification(List<Booking> expiredBookings) {
+    private void sendNotification(List<BookingNotificationDto> expiredBookings) {
         notificationService.sendNotification(expiredBookings);
     }
 }

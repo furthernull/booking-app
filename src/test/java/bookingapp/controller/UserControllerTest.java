@@ -80,19 +80,22 @@ class UserControllerTest {
     @DisplayName("Verify updateRole() method")
     @WithUserDetails(value = "admin@email.com")
     void updateRole_ValidUserUpdateRoleRequestDto_ReturnValidUserResponseDto() throws Exception {
+        // Given
         Long userId = 2L;
         UserUpdateRoleRequestDto updateRoleRequestDto =
                 new UserUpdateRoleRequestDto(Role.RoleName.ADMIN);
-
         String jsonRequest = objectMapper.writeValueAsString(updateRoleRequestDto);
+
+        // When
         MvcResult result = mockMvc.perform(put("/users/{id}/role", userId)
                         .content(jsonRequest)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        UserResponseDto userResponseDto = objectMapper.readValue(
-                result.getResponse().getContentAsString(), UserResponseDto.class);
+        // Then
+        UserResponseDto userResponseDto = objectMapper
+                .readValue(result.getResponse().getContentAsString(), UserResponseDto.class);
         assertNotNull(userResponseDto);
     }
 
@@ -101,15 +104,20 @@ class UserControllerTest {
     @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void getInfo_ValidAuthenticatedUser_ReturnUserResponseDto() throws Exception {
+        // Given
+        String expectedEmail = "john.doe@example.com";
+
+        // When
         MvcResult result = mockMvc.perform(get("/users/me")
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        UserResponseDto userResponseDto = objectMapper.readValue(
-                result.getResponse().getContentAsString(), UserResponseDto.class);
+        // Then
+        UserResponseDto userResponseDto = objectMapper
+                .readValue(result.getResponse().getContentAsString(), UserResponseDto.class);
         assertNotNull(userResponseDto);
-        assertEquals("john.doe@example.com", userResponseDto.email());
+        assertEquals(expectedEmail, userResponseDto.email());
     }
 
     @Test
@@ -119,20 +127,22 @@ class UserControllerTest {
     @Sql(scripts = "classpath:database/user/add-user-for-update.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     void updateUser_ValidUserUpdateRequestDto_ReturnValidUserResponseDto() throws Exception {
-        UserUpdateRequestDto requestDto = new UserUpdateRequestDto(
-                "Jane",
-                "Doe"
-        );
+        // Given
+        UserUpdateRequestDto requestDto = new UserUpdateRequestDto("Jane", "Doe");
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
+        // When
         MvcResult result = mockMvc.perform(patch("/users/me")
                         .content(jsonRequest)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        UserResponseDto userResponseDto = objectMapper.readValue(
-                result.getResponse().getContentAsString(), UserResponseDto.class);
+        // Then
+        UserResponseDto userResponseDto = objectMapper
+                .readValue(result.getResponse().getContentAsString(), UserResponseDto.class);
         assertNotNull(userResponseDto);
+        assertEquals("Jane", userResponseDto.firstName());
+        assertEquals("Doe", userResponseDto.lastName());
     }
 }

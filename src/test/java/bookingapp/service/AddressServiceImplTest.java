@@ -32,17 +32,20 @@ class AddressServiceImplTest {
     @Test
     @DisplayName("Verify save() method")
     void save_ValidAddressRequestDto_ReturnsValidAddressDto() {
+        // Given
         Address expected = ADDRESS;
 
         when(addressMapper.toModel(ADDRESS_REQUEST_DTO)).thenReturn(expected);
         when(addressRepository.save(expected)).thenReturn(expected);
 
+        // When
         Address actual = addressService.save(ADDRESS_REQUEST_DTO);
+
+        // Then
         assertNotNull(actual);
         assertEquals(expected, actual);
         verify(addressRepository, times(1)).save(expected);
         verify(addressMapper, times(1)).toModel(ADDRESS_REQUEST_DTO);
         verifyNoMoreInteractions(addressMapper, addressRepository);
-
     }
 }

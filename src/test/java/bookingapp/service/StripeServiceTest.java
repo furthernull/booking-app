@@ -37,12 +37,15 @@ class StripeServiceTest {
     @Test
     @DisplayName("Verify createSession() method")
     void createSession_ValidPayment_ReturnSession() throws StripeException {
+        // Given
         try (MockedStatic<Session> sessionMockedStatic = Mockito.mockStatic(Session.class)) {
             sessionMockedStatic.when(() -> Session.create(any(SessionCreateParams.class)))
                     .thenReturn(new Session());
 
+            // When
             Session actual = stripeService.createSession(PAYMENT_PENDING);
 
+            // Then
             assertNotNull(actual);
         }
     }
@@ -50,13 +53,16 @@ class StripeServiceTest {
     @Test
     @DisplayName("Verify getSessionById() with valid session ID")
     void getSessionById_ValidSessionId_ReturnsSession() throws StripeException {
+        // Given
         Session mockSession = new Session();
 
         try (MockedStatic<Session> sessionMockedStatic = Mockito.mockStatic(Session.class)) {
             sessionMockedStatic.when(() -> Session.retrieve(SESSION_ID)).thenReturn(mockSession);
 
+            // When
             Session session = stripeService.getSessionById(SESSION_ID);
 
+            // Then
             assertNotNull(session);
             assertEquals(mockSession, session);
         }
@@ -65,10 +71,12 @@ class StripeServiceTest {
     @Test
     @DisplayName("Verify getSessionById() throws exception for invalid session ID")
     void getSessionById_InvalidSessionId_ThrowsStripeServiceException() {
+        // Given
         try (MockedStatic<Session> sessionMockedStatic = Mockito.mockStatic(Session.class)) {
             sessionMockedStatic.when(() -> Session.retrieve(INVALID_SESSION_ID))
                     .thenThrow(new ApiException("Session not found", null, null, null, null));
 
+            // When & Then
             StripeServiceException exception = assertThrows(StripeServiceException.class, () -> {
                 stripeService.getSessionById(INVALID_SESSION_ID);
             });

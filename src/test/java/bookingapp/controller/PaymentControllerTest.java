@@ -91,15 +91,19 @@ class PaymentControllerTest {
     @WithUserDetails(value = "admin@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void getPayments_ValidRequest_ReturnPaymentsResponse() throws Exception {
-        when(paymentService.getPayments(2L, PAGEABLE))
+        // Given
+        Long userId = 2L;
+        when(paymentService.getPayments(userId, PAGEABLE))
                 .thenReturn(List.of(PAYMENT_PENDING_RESPONSE));
 
+        // When
         MvcResult result = mockMvc.perform(get("/payments/")
                         .param("user_id", "2")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Then
         PaymentResponse[] paymentResponses = objectMapper.readValue(
                 result.getResponse().getContentAsString(), PaymentResponse[].class);
         assertNotNull(paymentResponses[0]);
@@ -110,14 +114,18 @@ class PaymentControllerTest {
     @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void getPayments_ValidAuthenticatedUser_ReturnPayments() throws Exception {
+        // Given
+        Long userId = 2L;
         when(paymentService.getPayments(2L, PAGEABLE))
                 .thenReturn(List.of(PAYMENT_PENDING_RESPONSE));
 
+        // When
         MvcResult result = mockMvc.perform(get("/payments/")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Then
         PaymentResponse[] paymentResponses = objectMapper.readValue(
                 result.getResponse().getContentAsString(), PaymentResponse[].class);
         assertNotNull(paymentResponses[0]);
@@ -128,12 +136,14 @@ class PaymentControllerTest {
     @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void createPayment_ValidRequest_ValidResponse() throws Exception {
-        PaymentRequestDto requestDto = new PaymentRequestDto(1L);
+        // Given
+        Long bookingId = 1L;
+        PaymentRequestDto requestDto = new PaymentRequestDto(bookingId);
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
-
         when(paymentService.initiatePayment(USER_CUSTOMER, requestDto))
                 .thenReturn(SECOND_PAYMENT_PENDING_RESPONSE);
 
+        // When & Then
         mockMvc.perform(post("/payments/")
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -145,9 +155,11 @@ class PaymentControllerTest {
     @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void renewPayment_ValidRequest_ValidResponse() throws Exception {
+        // Given
         when(paymentService.renewPaymentSession("sessionIdExpired", USER_CUSTOMER))
                 .thenReturn(RENEWED_PAYMENT_PENDING_RESPONSE);
 
+        // When & Then
         mockMvc.perform(post("/payments/renew/")
                         .param("sessionId", "sessionIdExpired")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -159,8 +171,11 @@ class PaymentControllerTest {
     @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void successPayment_ValidRequest_ReturnPaymentResponse() throws Exception {
-        when(paymentService.handleSuccessPayment(SESSION_ID)).thenReturn(PAYMENT_PAID_RESPONSE);
+        // Given
+        when(paymentService.handleSuccessPayment(SESSION_ID))
+                .thenReturn(PAYMENT_PAID_RESPONSE);
 
+        // When & Then
         mockMvc.perform(get("/payments/success/")
                         .param("sessionId", "sessionId")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -172,9 +187,11 @@ class PaymentControllerTest {
     @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void cancelPayment_ValidRequest_ReturnPaymentResponse() throws Exception {
+        // Given
         when(paymentService.handleCancelPayment(SESSION_ID))
                 .thenReturn(SECOND_PAYMENT_PENDING_RESPONSE);
 
+        // When & Then
         mockMvc.perform(get("/payments/cancel/")
                         .param("sessionId", "sessionId")
                         .contentType(MediaType.APPLICATION_JSON))

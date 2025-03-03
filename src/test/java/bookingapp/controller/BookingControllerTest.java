@@ -86,10 +86,12 @@ class BookingControllerTest {
     @WithUserDetails(value = "test.user@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void create_ValidRequest_ReturnValidResponse() throws Exception {
+        // Given
         LocalDate checkIn = LocalDate.now().plusMonths(1);
         LocalDate checkOut = LocalDate.now().plusMonths(2);
         BookingRequestDto requestDto = new BookingRequestDto(1L, checkIn, checkOut);
 
+        // When
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
         MvcResult result = mockMvc.perform(post("/bookings")
                         .content(jsonRequest)
@@ -97,6 +99,7 @@ class BookingControllerTest {
                 .andExpect(status().isCreated())
                 .andReturn();
 
+        // Then
         BookingResponseDto bookingResponseDto = objectMapper.readValue(
                 result.getResponse().getContentAsString(),
                 BookingResponseDto.class);
@@ -107,12 +110,14 @@ class BookingControllerTest {
     @DisplayName("Verify getBookingsByIdAndStatus() method")
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     void getBookingsByIdAndStatus_ValidStatusParam_ReturnValidResponse() throws Exception {
+        // When
         MvcResult result = mockMvc.perform(get("/bookings")
                         .param("status", "PENDING")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Then
         BookingResponseDto[] responseDtos = objectMapper.readValue(
                 result.getResponse().getContentAsString(), BookingResponseDto[].class);
         assertNotNull(responseDtos);
@@ -124,14 +129,15 @@ class BookingControllerTest {
     @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void getBookingsByUserId_ValidUserIdParam_ReturnValidResponse() throws Exception {
+        // When
         MvcResult result = mockMvc.perform(get("/bookings/my")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Then
         BookingResponseDto[] responseDtos = objectMapper.readValue(
                 result.getResponse().getContentAsString(), BookingResponseDto[].class);
-
         assertNotNull(responseDtos);
         assertEquals(1, responseDtos.length);
         assertEquals(2, responseDtos[0].customerId());
@@ -142,12 +148,16 @@ class BookingControllerTest {
     @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void getBookingById_ValidIdParam_ReturnValidResponse() throws Exception {
+        // Given
         Long id = 1L;
+
+        // When
         MvcResult result = mockMvc.perform(get("/bookings/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Then
         BookingResponseDto bookingResponseDto = objectMapper.readValue(
                 result.getResponse().getContentAsString(), BookingResponseDto.class);
         assertNotNull(bookingResponseDto);
@@ -159,11 +169,13 @@ class BookingControllerTest {
     @WithUserDetails(value = "john.doe@example.com",
             userDetailsServiceBeanName = "customUserDetailsService")
     void updateBookingById_ValidUpdateRequestDto_ReturnValidResponse() throws Exception {
+        // Given
         Long id = 1L;
         LocalDate checkIn = LocalDate.now().plusDays(2);
         LocalDate checkOut = LocalDate.now().plusWeeks(2);
         BookingUpdateRequestDto updateRequestDto = new BookingUpdateRequestDto(checkIn, checkOut);
 
+        // When
         String jsonRequest = objectMapper.writeValueAsString(updateRequestDto);
         MvcResult result = mockMvc.perform(patch("/bookings/{id}", id)
                         .content(jsonRequest)
@@ -171,6 +183,7 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Then
         BookingResponseDto bookingResponseDto = objectMapper.readValue(
                 result.getResponse().getContentAsString(), BookingResponseDto.class);
         assertNotNull(bookingResponseDto);
@@ -186,8 +199,10 @@ class BookingControllerTest {
     @Sql(scripts = "classpath:database/booking/add-temporary-booking.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     void cancelBookingById_ValidCancelRequest_ReturnValidStatus() throws Exception {
+        // Given
         Long id = 3L;
 
+        // When & Then
         mockMvc.perform(delete("/bookings/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());

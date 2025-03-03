@@ -66,8 +66,8 @@ class UserServiceImplTest {
     @Test
     @DisplayName("Verify register() method")
     void register_ValidRequest_ReturnsValidUserResponse() throws RegistrationException {
+        // Given
         UserRegistrationRequestDto requestDto = USER_REGISTRATION_REQUEST_DTO;
-
         when(userRepository.existsByEmail(requestDto.email())).thenReturn(false);
         when(userMapper.toModel(requestDto)).thenReturn(USER_CUSTOMER);
         when(passwordEncoder.encode(requestDto.password())).thenReturn(CUSTOMER_ENCODED_PASSWORD);
@@ -75,72 +75,91 @@ class UserServiceImplTest {
         when(userRepository.save(USER_CUSTOMER)).thenReturn(USER_CUSTOMER);
         when(userMapper.toDto(USER_CUSTOMER)).thenReturn(USER_RESPONSE_DTO);
 
+        // When
         UserResponseDto actual = userServiceImpl.register(USER_REGISTRATION_REQUEST_DTO);
 
+        // Then
         assertEquals(USER_RESPONSE_DTO, actual);
     }
 
     @Test
     @DisplayName("Verify register() method, when user registered")
     void register_UserRegistered_ThrowException() throws RegistrationException {
+        // Given
         UserRegistrationRequestDto requestDto = USER_REGISTRATION_REQUEST_DTO;
         String expected = "User already exists";
-
         when(userRepository.existsByEmail(requestDto.email())).thenReturn(true);
+
+        // When
         RegistrationException ex = assertThrows(RegistrationException.class,
                 () -> userServiceImpl.register(USER_REGISTRATION_REQUEST_DTO));
+
+        // Then
         assertEquals(expected, ex.getMessage());
     }
 
     @Test
     @DisplayName("Verify updateRoleById() method")
     void updateRoleById_ValidUserId_ShouldUpdateRole() {
+        // Given
         when(userRepository.findById(DEFAULT_ID_TWO)).thenReturn(Optional.of(USER_CUSTOMER));
         when(roleRepository.findByRole(ROLE_NAME_ADMIN)).thenReturn(Optional.of(ROLE_ADMIN));
         when(userRepository.save(USER_CUSTOMER)).thenReturn(USER_CUSTOMER_UPDATED_ROLE);
         when(userMapper.toDto(USER_CUSTOMER)).thenReturn(USER_RESPONSE_DTO);
 
+        // When
         UserResponseDto actual = userServiceImpl
                 .updateRoleById(DEFAULT_ID_TWO, USER_UPDATE_ROLE_REQUEST_DTO);
 
+        // Then
         assertEquals(USER_RESPONSE_DTO, actual);
     }
 
     @Test
     @DisplayName("Verify getInfo() method")
     void getInfo_ValidId_ReturnsUserResponseDto() {
+        // Given
         when(userRepository.findById(DEFAULT_ID_ONE)).thenReturn(Optional.of(USER_ADMIN));
         when(userMapper.toDto(USER_ADMIN)).thenReturn(USER_ADMIN_RESPONSE_DTO);
 
+        // When
         UserResponseDto actual = userServiceImpl.getInfo(DEFAULT_ID_ONE);
+
+        // Then
         assertEquals(USER_ADMIN_RESPONSE_DTO, actual);
     }
 
     @Test
     @DisplayName("Verify updateUser() method")
     void updateUser_ValidUserId_ShouldUpdateUser() {
+        // Given
         when(userRepository.findById(DEFAULT_ID_THREE)).thenReturn(Optional.of(USER_CUSTOMER_2));
         doNothing().when(userMapper).updateUser(USER_CUSTOMER_2, USER_UPDATE_REQUEST_DTO);
         when(userRepository.save(USER_CUSTOMER_2)).thenReturn(USER_CUSTOMER_2);
         when(userMapper.toDto(USER_CUSTOMER_2)).thenReturn(USER_RESPONSE_DTO);
 
+        // When
         UserResponseDto actual = userServiceImpl
                 .updateUser(DEFAULT_ID_THREE, USER_UPDATE_REQUEST_DTO);
+
+        // Then
         assertEquals(USER_RESPONSE_DTO, actual);
     }
 
     @Test
     @DisplayName("Verify subscribeToChat() method")
     void subscribeToChat_ValidChatIdAndUsername_ShouldSubscribeToChat() {
+        // Given
         Long chatId = DEFAULT_ID_SEVEN;
         String username = USER_CUSTOMER.getUsername();
-
         when(userRepository.findByEmail(username)).thenReturn(Optional.of(USER_CUSTOMER));
         when(telegramRepository.findByChatId(chatId)).thenReturn(Optional.empty());
         when(telegramRepository.save(any(TelegramChat.class))).thenReturn(SUBSCRIBED_TELEGRAM_CHAT);
 
+        // When
         TelegramChat actual = userServiceImpl.subscribeToChat(chatId, username);
 
+        // Then
         assertTrue(actual.isSubscribed());
         assertEquals(chatId, actual.getChatId());
         assertEquals(USER_CUSTOMER, actual.getUser());
@@ -149,17 +168,19 @@ class UserServiceImplTest {
     @Test
     @DisplayName("Verify subscribeToChat() method with existing chat")
     void subscribeToChat_ExistingChat_ShouldUpdateSubscription() {
+        // Given
         Long chatId = DEFAULT_ID_SEVEN;
         String username = USER_CUSTOMER.getUsername();
-
         when(userRepository.findByEmail(username)).thenReturn(Optional.of(USER_CUSTOMER));
         when(telegramRepository.findByChatId(chatId))
                 .thenReturn(Optional.of(SUBSCRIBED_TELEGRAM_CHAT));
         when(telegramRepository.save(SUBSCRIBED_TELEGRAM_CHAT))
                 .thenReturn(SUBSCRIBED_TELEGRAM_CHAT);
 
+        // When
         TelegramChat actual = userServiceImpl.subscribeToChat(chatId, username);
 
+        // Then
         assertTrue(actual.isSubscribed());
         assertEquals(chatId, actual.getChatId());
         assertEquals(USER_CUSTOMER, actual.getUser());
@@ -168,28 +189,33 @@ class UserServiceImplTest {
     @Test
     @DisplayName("Verify unsubscribeFromChat() method")
     void unsubscribeFromChat_ValidChatId_ShouldUnsubscribeFromChat() {
+        // Given
         Long chatId = DEFAULT_ID_SEVEN;
-
         when(telegramRepository.findByChatId(chatId))
                 .thenReturn(Optional.of(SUBSCRIBED_TELEGRAM_CHAT));
         when(telegramRepository.save(SUBSCRIBED_TELEGRAM_CHAT))
                 .thenReturn(UNSUBSCRIBE_TELEGRAM_CHAT);
 
+        // When
         userServiceImpl.unsubscribeFromChat(chatId);
 
+        // Then
         verify(telegramRepository).save(SUBSCRIBED_TELEGRAM_CHAT);
     }
 
     @Test
     @DisplayName("Verify unsubscribeFromChat() method with invalid chatId")
     void unsubscribeFromChat_InvalidChatId_ShouldThrowException() {
+        // Given
         Long chatId = 100L;
         String expected = "Can't retrieve telegram chat by id: " + chatId;
-
         when(telegramRepository.findByChatId(chatId)).thenReturn(Optional.empty());
 
+        // When
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
                 () -> userServiceImpl.unsubscribeFromChat(chatId));
+
+        // Then
         assertEquals(expected, ex.getMessage());
     }
 }

@@ -31,21 +31,28 @@ class AccommodationRepositoryTest {
     @Test
     @DisplayName("Verify findAll() method")
     void findAll_ReturnsTwoAccommodations() {
+        // Given
         Integer expectedSize = 2;
         Pageable pageable = PageRequest.of(0, 10);
+
+        // When
         Page<Accommodation> accommodations = accommodationRepository.findAll(pageable);
-
         Integer actualSize = accommodations.getContent().size();
-        assertEquals(expectedSize, actualSize);
 
+        // Then
+        assertEquals(expectedSize, actualSize);
     }
 
     @Test
     @DisplayName("Verify findById() method valid id")
     void findById_ValidId_ReturnValidAccommodation() {
+        // Given
         Long expectedId = 2L;
+
+        // When
         Optional<Accommodation> accommodation = accommodationRepository.findById(expectedId);
 
+        // Then
         assertTrue(accommodation.isPresent());
         assertEquals(expectedId, accommodation.get().getId());
     }
@@ -53,7 +60,13 @@ class AccommodationRepositoryTest {
     @Test
     @DisplayName("Verify findById() method not valid id")
     void findById_NotValidId_ReturnEmptyOptional() {
-        Optional<Accommodation> accommodation = accommodationRepository.findById(Long.MAX_VALUE);
+        // Given
+        Long invalidId = Long.MAX_VALUE;
+
+        // When
+        Optional<Accommodation> accommodation = accommodationRepository.findById(invalidId);
+
+        // Then
         assertTrue(accommodation.isEmpty());
     }
 }

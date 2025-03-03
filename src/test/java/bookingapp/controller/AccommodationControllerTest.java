@@ -88,13 +88,17 @@ class AccommodationControllerTest {
     @Sql(scripts = "classpath:database/accommodation/delete-added-accommodation.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void create_ValidAccommodationRequest_ReturnValidResponse() throws Exception {
+        // Given
         String jsonRequest = objectMapper.writeValueAsString(ACCOMMODATION_REQUEST_DTO_STUDIO);
+
+        // When
         MvcResult result = mockMvc.perform(post("/accommodations")
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn();
 
+        // Then
         AccommodationDto accommodationDto = objectMapper.readValue(
                 result.getResponse().getContentAsString(), AccommodationDto.class);
         assertNotNull(accommodationDto);
@@ -104,11 +108,13 @@ class AccommodationControllerTest {
     @Test
     @DisplayName("Verify getAll() method")
     void getAll_ShouldReturnTwoAccommodations() throws Exception {
+        // When
         MvcResult result = mockMvc.perform(get("/accommodations")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Then
         AccommodationDto[] accommodationDtos = objectMapper
                 .readValue(result.getResponse().getContentAsString(),
                 AccommodationDto[].class);
@@ -119,13 +125,16 @@ class AccommodationControllerTest {
     @Test
     @DisplayName("Verify getById() method")
     void getById_ShouldReturnAccommodation() throws Exception {
+        // Given
         Long id = 1L;
 
+        // When
         MvcResult result = mockMvc.perform(get("/accommodations/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Then
         AccommodationDto actual = objectMapper.readValue(result.getResponse().getContentAsString(),
                 AccommodationDto.class);
         assertNotNull(actual);
@@ -136,6 +145,7 @@ class AccommodationControllerTest {
     @DisplayName("Verify update() method")
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     void update_ValidAccommodationRequest_ReturnUpdatedAccommodation() throws Exception {
+        // Given
         Long id = 2L;
         AccommodationRequestDto updateRequestDto = new AccommodationRequestDto(
                 TYPE_CONDO,
@@ -150,14 +160,16 @@ class AccommodationControllerTest {
                 BigDecimal.ONE,
                 1
         );
-
         String jsonRequest = objectMapper.writeValueAsString(updateRequestDto);
+
+        // When
         MvcResult result = mockMvc.perform(put("/accommodations/{id}", id)
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Then
         AccommodationDto accommodationDto = objectMapper.readValue(
                 result.getResponse().getContentAsString(), AccommodationDto.class);
         assertNotNull(accommodationDto);
@@ -169,8 +181,10 @@ class AccommodationControllerTest {
     @Sql(scripts = "classpath:database/accommodation/add-temporary-accommodation.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     void delete_ValidId_ShouldDeleteAccommodation() throws Exception {
+        // Given
         Long id = 3L;
 
+        // When & Then
         mockMvc.perform(delete("/accommodations/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());

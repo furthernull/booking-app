@@ -3,6 +3,7 @@ package bookingapp.dto.accommodation;
 import bookingapp.dto.address.AddressRequestDto;
 import bookingapp.model.accommodation.Accommodation;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
@@ -15,7 +16,7 @@ public record AccommodationRequestDto(
         AddressRequestDto address,
         @NotBlank
         String size,
-        @NotNull
+        @NotEmpty
         Set<Long> amenityIds,
         @NotNull
         @Positive

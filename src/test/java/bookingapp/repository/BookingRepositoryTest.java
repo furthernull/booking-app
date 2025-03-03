@@ -33,10 +33,14 @@ class BookingRepositoryTest {
     @Test
     @DisplayName("Verify findAllByUserId() method")
     void findAllByUserId_ValidUserId_ReturnsBookings() {
+        // Given
         Long userId = 2L;
         Pageable pageable = PageRequest.of(0, 10);
 
+        // When
         List<Booking> bookings = bookingRepository.findAllByUserId(userId, pageable);
+
+        // Then
         assertEquals(1, bookings.size());
         assertEquals(userId, bookings.get(0).getUser().getId());
     }
@@ -44,44 +48,60 @@ class BookingRepositoryTest {
     @Test
     @DisplayName("Verify findByIdAndUserId() method")
     void findByIdAndUserId_ValidIdAndUserId_ReturnsBookings() {
+        // Given
         Long bookingId = 1L;
         Long userId = 2L;
 
-        Optional<Booking> bookings = bookingRepository.findByIdAndUserId(bookingId, userId);
-        assertTrue(bookings.isPresent());
-        assertEquals(bookingId, bookings.get().getId());
-        assertEquals(userId, bookings.get().getUser().getId());
+        // When
+        Optional<Booking> booking = bookingRepository.findByIdAndUserId(bookingId, userId);
+
+        // Then
+        assertTrue(booking.isPresent());
+        assertEquals(bookingId, booking.get().getId());
+        assertEquals(userId, booking.get().getUser().getId());
     }
 
     @Test
     @DisplayName("Verify findConflictingBooking() method")
     void findConflictingBooking_ValidBookedDates_ReturnFalse() {
+        // Given
         Long accommodationId = 1L;
         LocalDate startDate = LocalDate.now().plusDays(1);
         LocalDate endDate = startDate.plusMonths(1);
         Booking.Status cancelled = Booking.Status.CANCELLED;
 
+        // When
         List<Booking> bookings = bookingRepository
                 .findConflictingBooking(accommodationId, startDate, endDate, cancelled);
+
+        // Then
         assertFalse(bookings.isEmpty());
     }
 
     @Test
     @DisplayName("Verify findById() method")
     void findById_ValidId_ReturnsValidBooking() {
+        // Given
         Long bookingId = 1L;
 
-        Optional<Booking> bookings = bookingRepository.findById(bookingId);
-        assertTrue(bookings.isPresent());
-        assertEquals(bookingId, bookings.get().getId());
+        // When
+        Optional<Booking> booking = bookingRepository.findById(bookingId);
+
+        // Then
+        assertTrue(booking.isPresent());
+        assertEquals(bookingId, booking.get().getId());
     }
 
     @Test
     @DisplayName("Verify findExpiringBookings")
     void findExpiringBookings_ValidDate_ReturnEmptyList() {
+        // Given
         LocalDate today = LocalDate.now();
 
+        // When
         List<Booking> bookings = bookingRepository.findExpiringBookings(today);
+
+        // Then
         assertTrue(bookings.isEmpty());
     }
 }

@@ -27,40 +27,56 @@ class UserRepositoryTest {
     private UserRepository userRepository;
 
     @Test
-    @DisplayName("Verify existByEmail() method should user exist")
-
+    @DisplayName("Verify existByEmail() method should return true for existing user")
     void existByEmail_ValidEmail_ReturnTrue() {
-        String email = "john.doe@example.com";
+        // Given
+        String existingEmail = "john.doe@example.com";
 
-        boolean actual = userRepository.existsByEmail(email);
-        assertTrue(actual);
+        // When
+        boolean exists = userRepository.existsByEmail(existingEmail);
+
+        // Then
+        assertTrue(exists, "User with the given email should exist in the database");
     }
 
     @Test
-    @DisplayName("Verify exitsByEmail() method could not exist")
+    @DisplayName("Verify existByEmail() method should return false for non-existing user")
     void existByEmail_NotValidEmail_ReturnFalse() {
-        String email = "noexist@test.com";
+        // Given
+        String nonExistingEmail = "noexist@test.com";
 
-        boolean actual = userRepository.existsByEmail(email);
-        assertFalse(actual);
+        // When
+        boolean exists = userRepository.existsByEmail(nonExistingEmail);
+
+        // Then
+        assertFalse(exists, "User with the given email should not exist in the database");
     }
 
     @Test
-    @DisplayName("Verify findByEmail() should return exist user")
+    @DisplayName("Verify findByEmail() method should return an existing user")
     void findByEmail_ValidEmail_ReturnExistingUser() {
-        String email = "john.doe@example.com";
+        // Given
+        String existingEmail = "john.doe@example.com";
 
-        Optional<User> actual = userRepository.findByEmail(email);
-        assertTrue(actual.isPresent());
-        assertEquals(email, actual.get().getEmail());
+        // When
+        Optional<User> foundUser = userRepository.findByEmail(existingEmail);
+
+        // Then
+        assertTrue(foundUser.isPresent(), "User should be found in the database");
+        assertEquals(existingEmail, foundUser.get().getEmail(), "Emails should match");
     }
 
     @Test
-    @DisplayName("Verify findByEmail() method should return empty optional")
+    @DisplayName("Verify findByEmail() method "
+            + "should return an empty optional for a non-existing user")
     void findByEmail_NotValidEmail_ReturnEmptyUser() {
-        String email = "noexist@test.com";
+        // Given
+        String nonExistingEmail = "noexist@test.com";
 
-        Optional<User> actual = userRepository.findByEmail(email);
-        assertFalse(actual.isPresent());
+        // When
+        Optional<User> foundUser = userRepository.findByEmail(nonExistingEmail);
+
+        // Then
+        assertFalse(foundUser.isPresent(), "No user should be found for a non-existing email");
     }
 }

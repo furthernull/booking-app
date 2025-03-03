@@ -1,16 +1,16 @@
 package bookingapp.service;
 
-import bookingapp.model.accommodation.Accommodation;
-import bookingapp.model.booking.Booking;
-import bookingapp.model.payment.Payment;
+import bookingapp.dto.accommodation.AccommodationNotificationDto;
+import bookingapp.dto.booking.BookingNotificationDto;
+import bookingapp.dto.payment.PaymentNotificationDto;
 import java.util.List;
 
 public interface NotificationService {
-    void sendNotification(Long userId, Booking booking);
+    void sendNotification(BookingNotificationDto bookingNotificationDto);
 
-    void sendNotification(Accommodation accommodation);
+    void sendNotification(AccommodationNotificationDto accommodationNotificationDto);
 
-    void sendNotification(List<Booking> expiringBookings);
+    void sendNotification(List<BookingNotificationDto> expiringBookings);
 
-    void sendNotification(Payment payment);
+    void sendNotification(PaymentNotificationDto paymentNotificationDto);
 }

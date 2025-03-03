@@ -55,12 +55,16 @@ class PaymentServiceImplTest {
     @Test
     @DisplayName("Verify getPayments() method with user id")
     void getPayments_WithUserId_ShouldReturnUsersPayments() {
+        // Given
         when(paymentRepository.findByBookingUserId(DEFAULT_ID_ONE, PAGEABLE))
                 .thenReturn(List.of(PAYMENT_PENDING));
         when(paymentMapper.toDto(List.of(PAYMENT_PENDING)))
                 .thenReturn(List.of(PAYMENT_PENDING_RESPONSE));
 
+        // When
         List<PaymentResponse> actual = paymentService.getPayments(DEFAULT_ID_ONE, PAGEABLE);
+
+        // Then
         assertNotNull(actual);
         assertEquals(List.of(PAYMENT_PENDING_RESPONSE), actual);
         verify(paymentRepository).findByBookingUserId(DEFAULT_ID_ONE, PAGEABLE);
@@ -70,11 +74,14 @@ class PaymentServiceImplTest {
     @Test
     @DisplayName("Verify getPayments() method without user id")
     void getPayments_WithoutUserId_ShouldReturnPaymentsList() {
+        // Given
         when(paymentRepository.findAll(PAGEABLE)).thenReturn(PAYMENT_PAGE);
         when(paymentMapper.toDto(PAYMENT_PAGE)).thenReturn(List.of(PAYMENT_PENDING_RESPONSE));
 
+        // When
         List<PaymentResponse> actual = paymentService.getPayments(null, PAGEABLE);
 
+        // Then
         assertNotNull(actual);
         assertEquals(List.of(PAYMENT_PENDING_RESPONSE), actual);
         verify(paymentRepository).findAll(PAGEABLE);
@@ -84,6 +91,7 @@ class PaymentServiceImplTest {
     @Test
     @DisplayName("Verify initiatePayment() method")
     void initiatePayment_ValidRequest_ReturnValidPaymentResponse() {
+        // Given
         Long bookingId = 1L;
         Long userId = 2L;
         Payment payment = PAYMENT_PENDING;
@@ -99,8 +107,10 @@ class PaymentServiceImplTest {
         when(paymentRepository.save(payment)).thenReturn(payment);
         when(paymentMapper.toDto(payment)).thenReturn(expected);
 
-        PaymentResponse actual = paymentService
-                .initiatePayment(USER_CUSTOMER, PAYMENT_REQUEST_DTO);
+        // When
+        PaymentResponse actual = paymentService.initiatePayment(USER_CUSTOMER, PAYMENT_REQUEST_DTO);
+
+        // Then
         assertNotNull(actual);
         assertEquals(expected, actual);
     }
@@ -108,6 +118,7 @@ class PaymentServiceImplTest {
     @Test
     @DisplayName("Verify handleSuccessPayment() method")
     void handleSuccessPayment_ValidSessionId_ReturnValidPaymentResponse() {
+        // Given
         Session session = mock(Session.class);
 
         when(paymentRepository.findBySessionId(SESSION_ID))
@@ -119,7 +130,10 @@ class PaymentServiceImplTest {
         when(paymentRepository.save(PAYMENT_PENDING)).thenReturn(PAYMENT_PAID);
         when(paymentMapper.toDto(PAYMENT_PENDING)).thenReturn(PAYMENT_PAID_RESPONSE);
 
+        // When
         PaymentResponse actual = paymentService.handleSuccessPayment(SESSION_ID);
+
+        // Then
         assertNotNull(actual);
         assertEquals(PAYMENT_PAID_RESPONSE, actual);
     }
@@ -127,13 +141,17 @@ class PaymentServiceImplTest {
     @Test
     @DisplayName("Verify handleCancelPayment() method")
     void handleCancelPayment_ValidSessionId_ShouldInvokeSendNotificationReturnPaymentResponse() {
+        // Given
         Payment payment = PAYMENT_PENDING;
         PaymentResponse paymentResponse = PAYMENT_PENDING_RESPONSE;
 
         when(paymentRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(payment));
         when(paymentMapper.toDto(payment)).thenReturn(paymentResponse);
 
+        // When
         PaymentResponse actual = paymentService.handleCancelPayment(SESSION_ID);
+
+        // Then
         assertNotNull(actual);
         assertEquals(paymentResponse, actual);
     }
@@ -141,20 +159,24 @@ class PaymentServiceImplTest {
     @Test
     @DisplayName("Verify processExpiredPayments() method")
     void processExpiredPayments_ShouldUpdateExpiredPayments() {
+        // Given
         Session session = mock(Session.class);
 
         when(paymentRepository.findPendingPayments()).thenReturn(List.of(PAYMENT_PENDING));
         when(stripeService.getSessionById(SESSION_ID)).thenReturn(session);
         when(session.getStatus()).thenReturn("expired");
 
+        // When
         paymentService.processExpiredPayments();
 
+        // Then
         verify(paymentRepository).save(PAYMENT_PENDING);
     }
 
     @Test
     @DisplayName("Renew payment session successfully")
     void renewPaymentSession_ValidRequest_ShouldReturnUpdatedPaymentResponse() {
+        // Given
         Session newSession = mock(Session.class);
         when(newSession.getId()).thenReturn(SESSION_ID);
         when(newSession.getUrl()).thenReturn(SESSION_URL);
@@ -165,8 +187,10 @@ class PaymentServiceImplTest {
         when(paymentRepository.save(PAYMENT_EXPIRED)).thenReturn(PAYMENT_EXPIRED);
         when(paymentMapper.toDto(PAYMENT_EXPIRED)).thenReturn(PAYMENT_PENDING_RESPONSE);
 
+        // When
         PaymentResponse actual = paymentService.renewPaymentSession(SESSION_ID, USER_CUSTOMER);
 
+        // Then
         assertNotNull(actual);
         assertEquals(PAYMENT_PENDING_RESPONSE, actual);
         assertEquals(SESSION_ID, PAYMENT_EXPIRED.getSessionId());

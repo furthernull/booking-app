@@ -1,6 +1,7 @@
 package bookingapp.mapper;
 
 import bookingapp.config.MapperConfig;
+import bookingapp.dto.booking.BookingNotificationDto;
 import bookingapp.dto.booking.BookingRequestDto;
 import bookingapp.dto.booking.BookingResponseDto;
 import bookingapp.dto.booking.BookingUpdateRequestDto;
@@ -10,7 +11,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(config = MapperConfig.class)
+@Mapper(config = MapperConfig.class, uses = AccommodationMapper.class)
 public interface BookingMapper {
     @Mapping(target = "accommodation", ignore = true)
     @Mapping(target = "user", ignore = true)
@@ -25,4 +26,10 @@ public interface BookingMapper {
     List<BookingResponseDto> toDto(Iterable<Booking> bookings);
 
     void updateBooking(@MappingTarget Booking booking, BookingUpdateRequestDto requestDto);
+
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "bookingStatus", source = "status")
+    BookingNotificationDto toNotificationDto(Booking booking);
+
+    List<BookingNotificationDto> toNotificationDto(Iterable<Booking> bookings);
 }

@@ -59,7 +59,7 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
     @ExceptionHandler({EntityNotFoundException.class,
             IllegalStateException.class,
             SpecificationProviderNotFoundException.class})
-    protected ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex) {
+    protected ResponseEntity<Object> handleEntityNotFoundException(RuntimeException ex) {
         Map<String, Object> body = fillResponseBody(
                 HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);

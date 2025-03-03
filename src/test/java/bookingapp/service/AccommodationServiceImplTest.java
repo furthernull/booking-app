@@ -2,6 +2,7 @@ package bookingapp.service;
 
 import static bookingapp.test.TestUtils.ACCOMMODATION_DTO_STUDIO;
 import static bookingapp.test.TestUtils.ACCOMMODATION_DTO_UPDATED_TO_HOUSE;
+import static bookingapp.test.TestUtils.ACCOMMODATION_NOTIFICATION_DTO;
 import static bookingapp.test.TestUtils.ACCOMMODATION_PAGE;
 import static bookingapp.test.TestUtils.ACCOMMODATION_REQUEST_DTO_STUDIO;
 import static bookingapp.test.TestUtils.ACCOMMODATION_STUDIO;
@@ -53,6 +54,7 @@ class AccommodationServiceImplTest {
     @Test
     @DisplayName("Verify create() method with valid request")
     void create_ValidRequestDto_ReturnNewAccommodationDto() {
+        // Given
         Accommodation accommodation = ACCOMMODATION_STUDIO;
         AccommodationDto expected = ACCOMMODATION_DTO_STUDIO;
 
@@ -60,13 +62,19 @@ class AccommodationServiceImplTest {
                 .thenReturn(accommodation);
         when(accommodationRepository.save(accommodation)).thenReturn(accommodation);
         when(accommodationMapper.toDto(accommodation)).thenReturn(expected);
+        when(accommodationMapper.toNotificationDto(accommodation))
+                .thenReturn(ACCOMMODATION_NOTIFICATION_DTO);
 
+        // When
         AccommodationDto actual = accommodationService.create(ACCOMMODATION_REQUEST_DTO_STUDIO);
+
+        // Then
         assertNotNull(actual);
         assertEquals(expected, actual);
 
         verify(accommodationMapper, times(1)).toModel(ACCOMMODATION_REQUEST_DTO_STUDIO);
         verify(accommodationRepository, times(1)).save(accommodation);
+        verify(accommodationMapper, times(1)).toNotificationDto(accommodation);
         verify(accommodationMapper, times(1)).toDto(accommodation);
         verifyNoMoreInteractions(accommodationMapper, accommodationRepository);
     }
@@ -74,12 +82,16 @@ class AccommodationServiceImplTest {
     @Test
     @DisplayName("Verify findAll() method")
     void findAll_ReturnValidListOfAccommodationDto() {
+        // Given
         AccommodationDto expected = ACCOMMODATION_DTO_STUDIO;
 
         when(accommodationRepository.findAll(PAGEABLE)).thenReturn(ACCOMMODATION_PAGE);
         when(accommodationMapper.toDto(ACCOMMODATION_PAGE)).thenReturn(List.of(expected));
 
+        // When
         List<AccommodationDto> actual = accommodationService.findAll(PAGEABLE);
+
+        // Then
         assertNotNull(actual);
         assertFalse(actual.isEmpty());
         assertEquals(expected, actual.get(0));
@@ -92,6 +104,7 @@ class AccommodationServiceImplTest {
     @Test
     @DisplayName("Verify findById() method with valid id")
     void findById_ValidId_ReturnValidAccommodationDto() {
+        // Given
         Accommodation accommodation = ACCOMMODATION_STUDIO;
         AccommodationDto expected = ACCOMMODATION_DTO_STUDIO;
 
@@ -99,7 +112,10 @@ class AccommodationServiceImplTest {
                 .thenReturn(Optional.of(accommodation));
         when(accommodationMapper.toDto(accommodation)).thenReturn(expected);
 
+        // When
         AccommodationDto actualAccommodationDto = accommodationService.findById(DEFAULT_ID_ONE);
+
+        // Then
         assertNotNull(actualAccommodationDto);
         assertEquals(expected, actualAccommodationDto);
         verify(accommodationMapper, times(1)).toDto(accommodation);
@@ -110,11 +126,13 @@ class AccommodationServiceImplTest {
     @Test
     @DisplayName("Verify findById() method with not valid id")
     void findById_NotValidId_ThrowEntityNotFoundException() {
+        // Given
         Long id = -1L;
         String expected = "Accommodation not found, requested id: " + id;
 
         when(accommodationRepository.findById(anyLong())).thenReturn(Optional.empty());
 
+        // When & Then
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
                 () -> accommodationService.findById(id));
         assertEquals(expected, ex.getMessage());
@@ -123,6 +141,7 @@ class AccommodationServiceImplTest {
     @Test
     @DisplayName("Verify update() method with valid id and request")
     void update_ValidIdAndRequestDto_ReturnUpdatedAccommodationDto() {
+        // Given
         Accommodation accommodation = ACCOMMODATION_STUDIO;
         Accommodation updatedAccommodation = ACCOMMODATION_UPDATED_TO_HOUSE;
         AccommodationDto expected = ACCOMMODATION_DTO_UPDATED_TO_HOUSE;
@@ -131,8 +150,11 @@ class AccommodationServiceImplTest {
         when(accommodationRepository.save(accommodation)).thenReturn(updatedAccommodation);
         when(accommodationMapper.toDto(updatedAccommodation)).thenReturn(expected);
 
+        // When
         AccommodationDto actual = accommodationService
                 .update(DEFAULT_ID_ONE, ACCOMMODATION_UPDATE_REQUEST_DTO_HOUSE);
+
+        // Then
         assertNotNull(actual);
         assertEquals(expected, actual);
         verify(accommodationRepository, times(1)).findById(DEFAULT_ID_ONE);
@@ -146,11 +168,13 @@ class AccommodationServiceImplTest {
     @Test
     @DisplayName("Verify update() method with not valid params")
     void update_NotValidId_ThrowEntityNotFoundException() {
+        // Given
         Long id = -1L;
         String expected = "Accommodation not found, requested id: " + id;
 
         when(accommodationRepository.findById(anyLong())).thenReturn(Optional.empty());
 
+        // When & Then
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
                 () -> accommodationService.update(id, ACCOMMODATION_UPDATE_REQUEST_DTO_HOUSE));
         assertEquals(expected, ex.getMessage());
@@ -159,8 +183,14 @@ class AccommodationServiceImplTest {
     @Test
     @DisplayName("Verify deleteById() method")
     void deleteById_ValidId_DeleteAccommodation() {
-        accommodationService.deleteById(anyLong());
-        verify(accommodationRepository, times(1)).deleteById(anyLong());
+        // Given
+        Long id = 1L;
+
+        // When
+        accommodationService.deleteById(id);
+
+        // Then
+        verify(accommodationRepository, times(1)).deleteById(id);
         verifyNoMoreInteractions(accommodationRepository);
     }
 }

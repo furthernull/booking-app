@@ -1,6 +1,7 @@
 package bookingapp.service.impl;
 
 import bookingapp.dto.accommodation.AccommodationDto;
+import bookingapp.dto.accommodation.AccommodationNotificationDto;
 import bookingapp.dto.accommodation.AccommodationRequestDto;
 import bookingapp.exception.EntityNotFoundException;
 import bookingapp.mapper.AccommodationMapper;
@@ -37,7 +38,7 @@ public class AccommodationServiceImpl implements AccommodationService {
         accommodation.setLocation(location);
         accommodation.setAmenities(fetchAmenitiesByIds(requestDto.amenityIds()));
         accommodationRepository.save(accommodation);
-        sendNotification(accommodation);
+        sendNotification(accommodationMapper.toNotificationDto(accommodation));
         return accommodationMapper.toDto(accommodation);
     }
 
@@ -68,8 +69,8 @@ public class AccommodationServiceImpl implements AccommodationService {
         accommodationRepository.deleteById(id);
     }
 
-    private void sendNotification(Accommodation accommodation) {
-        notificationService.sendNotification(accommodation);
+    private void sendNotification(AccommodationNotificationDto accommodationNotificationDto) {
+        notificationService.sendNotification(accommodationNotificationDto);
     }
 
     private Set<AmenityType> fetchAmenitiesByIds(Set<Long> amenitiesIds) {
