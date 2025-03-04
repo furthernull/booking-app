@@ -1,7 +1,5 @@
 package bookingapp.telegram.strategy;
 
-public interface NotificationProvider {
-    String getKey();
-
+public interface NotificationService {
     String getNotification();
 }

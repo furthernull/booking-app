@@ -23,6 +23,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             + "WHERE p.sessionId = :sessionId")
     Optional<Payment> findBySessionId(String sessionId);
 
-    @Query("SELECT p FROM Payment p WHERE p.status = 'PENDING'")
-    List<Payment> findPendingPayments();
+    @Query("SELECT p FROM Payment p WHERE p.status = 'AWAITING'")
+    List<Payment> findAwaitingPayments();
 }

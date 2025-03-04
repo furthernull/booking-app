@@ -257,7 +257,7 @@ public class TestUtils {
             DEFAULT_CHECK_OUT_DATE
     );
 
-    public static final Booking BOOKING_STUDIO_PENDING = getBookingStudioPending();
+    public static final Booking BOOKING_STUDIO_AWAITING = getBookingStudioAwaiting();
     public static final Booking BOOKING_STUDIO_CONFIRMED = getBookingStudioConfirmed();
 
     public static final BookingNotificationDto BOOKING_NOTIFICATION_DTO =
@@ -276,16 +276,16 @@ public class TestUtils {
                 DEFAULT_CHECK_OUT_DATE,
                 DEFAULT_ID_ONE,
                 DEFAULT_ID_TWO,
-                BOOKING_STUDIO_PENDING.getStatus().name()
+                BOOKING_STUDIO_AWAITING.getStatus().name()
     );
 
     public static final BookingFilterParameters BOOKING_FILTER_PARAMETERS =
             new BookingFilterParameters(
                     USER_CUSTOMER.getId(),
-                    BOOKING_STUDIO_PENDING.getStatus()
+                    BOOKING_STUDIO_AWAITING.getStatus()
             );
 
-    public static final List<Booking> BOOKING_LIST = List.of(BOOKING_STUDIO_PENDING);
+    public static final List<Booking> BOOKING_LIST = List.of(BOOKING_STUDIO_AWAITING);
     public static final Page<Booking> BOOKING_PAGE = new PageImpl<>(BOOKING_LIST);
 
     public static final BookingUpdateRequestDto BOOKING_UPDATE_REQUEST_DTO =
@@ -303,7 +303,7 @@ public class TestUtils {
                     UPDATE_CHECK_OUT_DATE,
                     DEFAULT_ID_ONE,
                     DEFAULT_ID_TWO,
-                    BOOKING_STUDIO_PENDING.getStatus().name()
+                    BOOKING_STUDIO_AWAITING.getStatus().name()
             );
 
     public static final Booking CONFLICTING_BOOKING = getConflictingBooking();
@@ -312,7 +312,7 @@ public class TestUtils {
 
     public static final Booking BOOKING_CONDO_EXPIRED = getExpiredBookingCondo();
 
-    public static final Payment.Status PAYMENT_STATUS_PENDING = Payment.Status.PENDING;
+    public static final Payment.Status PAYMENT_STATUS_AWAITING = Payment.Status.AWAITING;
     public static final Payment.Status PAYMENT_STATUS_PAID = Payment.Status.PAID;
     public static final Payment.Status PAYMENT_STATUS_EXPIRED = Payment.Status.EXPIRED;
 
@@ -326,18 +326,18 @@ public class TestUtils {
             DEFAULT_ID_ONE
     );
 
-    public static final Payment PAYMENT_PENDING = getPaymentPending();
+    public static final Payment PAYMENT_AWAITING = getPaymentAwaiting();
     public static final Payment PAYMENT_PAID = getPaymentPaid();
     public static final Payment PAYMENT_EXPIRED = getPaymentExpired();
 
-    public static final PaymentResponse PAYMENT_PENDING_RESPONSE = getPaymentPendingResponse();
-    public static final PaymentResponse RENEWED_PAYMENT_PENDING_RESPONSE =
-            getRenewedPaymentPendingResponse();
-    public static final PaymentResponse SECOND_PAYMENT_PENDING_RESPONSE =
-            getSecondPaymentPendingResponse();
+    public static final PaymentResponse PAYMENT_AWAITING_RESPONSE = getPaymentAwaitingResponse();
+    public static final PaymentResponse RENEWED_PAYMENT_AWAITING_RESPONSE =
+            getRenewedPaymentAwaitingResponse();
+    public static final PaymentResponse SECOND_PAYMENT_AWAITING_RESPONSE =
+            getSecondPaymentAwaitingResponse();
     public static final PaymentResponse PAYMENT_PAID_RESPONSE = getPaymentPaidResponse();
 
-    public static final Page<Payment> PAYMENT_PAGE = new PageImpl<>(List.of(PAYMENT_PENDING));
+    public static final Page<Payment> PAYMENT_PAGE = new PageImpl<>(List.of(PAYMENT_AWAITING));
 
     public static final TelegramChat SUBSCRIBED_TELEGRAM_CHAT = getSubscribedTelegramChat();
     public static final TelegramChat UNSUBSCRIBE_TELEGRAM_CHAT = getUnsubscribedTelegramChat();
@@ -530,7 +530,7 @@ public class TestUtils {
         return user;
     }
 
-    private static Booking getBookingStudioPending() {
+    private static Booking getBookingStudioAwaiting() {
         Booking booking = new Booking();
         booking.setId(DEFAULT_ID_ONE);
         booking.setCheckInDate(DEFAULT_CHECK_IN_DATE);
@@ -597,11 +597,11 @@ public class TestUtils {
     }
 
     @SneakyThrows
-    private static Payment getPaymentPending() {
+    private static Payment getPaymentAwaiting() {
         Payment payment = new Payment();
         payment.setId(DEFAULT_ID_ONE);
-        payment.setStatus(PAYMENT_STATUS_PENDING);
-        payment.setBooking(BOOKING_STUDIO_PENDING);
+        payment.setStatus(PAYMENT_STATUS_AWAITING);
+        payment.setBooking(BOOKING_STUDIO_AWAITING);
         payment.setSessionUrl(new URL(SESSION_URL));
         payment.setSessionId(SESSION_ID);
         payment.setAmountToPay(PAYMENT_AMOUNT);
@@ -625,14 +625,14 @@ public class TestUtils {
         Payment payment = new Payment();
         payment.setId(DEFAULT_ID_ONE);
         payment.setStatus(PAYMENT_STATUS_EXPIRED);
-        payment.setBooking(BOOKING_STUDIO_PENDING);
+        payment.setBooking(BOOKING_STUDIO_AWAITING);
         payment.setSessionUrl(new URL(SESSION_URL));
         payment.setSessionId(SESSION_ID);
         payment.setAmountToPay(PAYMENT_AMOUNT);
         return payment;
     }
 
-    private static PaymentResponse getPaymentPendingResponse() {
+    private static PaymentResponse getPaymentAwaitingResponse() {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setId(DEFAULT_ID_ONE);
         paymentResponse.setPaymentStatus(PAYMENT_STATUS_PAID.name());
@@ -643,10 +643,10 @@ public class TestUtils {
         return paymentResponse;
     }
 
-    private static PaymentResponse getRenewedPaymentPendingResponse() {
+    private static PaymentResponse getRenewedPaymentAwaitingResponse() {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setId(DEFAULT_ID_THREE);
-        paymentResponse.setPaymentStatus(PAYMENT_STATUS_PENDING.name());
+        paymentResponse.setPaymentStatus(PAYMENT_STATUS_AWAITING.name());
         paymentResponse.setBookingId(String.valueOf(DEFAULT_ID_ONE));
         paymentResponse.setSessionUrl(SESSION_URL);
         paymentResponse.setSessionId(SESSION_ID);
@@ -654,10 +654,10 @@ public class TestUtils {
         return paymentResponse;
     }
 
-    private static PaymentResponse getSecondPaymentPendingResponse() {
+    private static PaymentResponse getSecondPaymentAwaitingResponse() {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setId(DEFAULT_ID_TWO);
-        paymentResponse.setPaymentStatus(PAYMENT_STATUS_PENDING.name());
+        paymentResponse.setPaymentStatus(PAYMENT_STATUS_AWAITING.name());
         paymentResponse.setBookingId(String.valueOf(DEFAULT_ID_TWO));
         paymentResponse.setSessionUrl(SESSION_URL);
         paymentResponse.setSessionId(SESSION_ID);

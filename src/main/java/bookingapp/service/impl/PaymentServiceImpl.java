@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PaymentServiceImpl implements PaymentService {
     private static final Booking.Status CONFIRMED = Booking.Status.CONFIRMED;
-    private static final Payment.Status PENDING = Payment.Status.PENDING;
+    private static final Payment.Status AWAITING = Payment.Status.AWAITING;
     private static final Payment.Status PAID = Payment.Status.PAID;
     private static final Payment.Status EXPIRED = Payment.Status.EXPIRED;
     private static final String SESSION_PAYMENT_STATUS_PAID = "paid";
@@ -58,7 +58,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(
                         () -> new EntityNotFoundException(
                                 "Can't fetch booking by id: " + requestDto.bookingId()));
-        payment.setStatus(PENDING);
+        payment.setStatus(AWAITING);
         payment.setBooking(booking);
         payment.setAmountToPay(calculateAmount(booking));
         Session session = stripeService.createSession(payment);
@@ -95,7 +95,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     @Override
     public void processExpiredPayments() {
-        paymentRepository.findPendingPayments().forEach(p -> {
+        paymentRepository.findAwaitingPayments().forEach(p -> {
             Session session = stripeService.getSessionById(p.getSessionId());
             if (session != null && session.getStatus().equals(SESSION_STATUS_EXPIRED)) {
                 p.setStatus(EXPIRED);
@@ -118,7 +118,7 @@ public class PaymentServiceImpl implements PaymentService {
         Session newSession = stripeService.createSession(payment);
         payment.setSessionUrl(getUrl(newSession.getUrl()));
         payment.setSessionId(newSession.getId());
-        payment.setStatus(PENDING);
+        payment.setStatus(AWAITING);
         paymentRepository.save(payment);
         return paymentMapper.toDto(payment);
     }

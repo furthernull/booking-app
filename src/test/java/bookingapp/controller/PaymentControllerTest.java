@@ -1,10 +1,10 @@
 package bookingapp.controller;
 
 import static bookingapp.test.TestUtils.PAGEABLE;
+import static bookingapp.test.TestUtils.PAYMENT_AWAITING_RESPONSE;
 import static bookingapp.test.TestUtils.PAYMENT_PAID_RESPONSE;
-import static bookingapp.test.TestUtils.PAYMENT_PENDING_RESPONSE;
-import static bookingapp.test.TestUtils.RENEWED_PAYMENT_PENDING_RESPONSE;
-import static bookingapp.test.TestUtils.SECOND_PAYMENT_PENDING_RESPONSE;
+import static bookingapp.test.TestUtils.RENEWED_PAYMENT_AWAITING_RESPONSE;
+import static bookingapp.test.TestUtils.SECOND_PAYMENT_AWAITING_RESPONSE;
 import static bookingapp.test.TestUtils.SESSION_ID;
 import static bookingapp.test.TestUtils.USER_CUSTOMER;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -94,7 +94,7 @@ class PaymentControllerTest {
         // Given
         Long userId = 2L;
         when(paymentService.getPayments(userId, PAGEABLE))
-                .thenReturn(List.of(PAYMENT_PENDING_RESPONSE));
+                .thenReturn(List.of(PAYMENT_AWAITING_RESPONSE));
 
         // When
         MvcResult result = mockMvc.perform(get("/payments/")
@@ -117,7 +117,7 @@ class PaymentControllerTest {
         // Given
         Long userId = 2L;
         when(paymentService.getPayments(2L, PAGEABLE))
-                .thenReturn(List.of(PAYMENT_PENDING_RESPONSE));
+                .thenReturn(List.of(PAYMENT_AWAITING_RESPONSE));
 
         // When
         MvcResult result = mockMvc.perform(get("/payments/")
@@ -141,7 +141,7 @@ class PaymentControllerTest {
         PaymentRequestDto requestDto = new PaymentRequestDto(bookingId);
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
         when(paymentService.initiatePayment(USER_CUSTOMER, requestDto))
-                .thenReturn(SECOND_PAYMENT_PENDING_RESPONSE);
+                .thenReturn(SECOND_PAYMENT_AWAITING_RESPONSE);
 
         // When & Then
         mockMvc.perform(post("/payments/")
@@ -157,7 +157,7 @@ class PaymentControllerTest {
     void renewPayment_ValidRequest_ValidResponse() throws Exception {
         // Given
         when(paymentService.renewPaymentSession("sessionIdExpired", USER_CUSTOMER))
-                .thenReturn(RENEWED_PAYMENT_PENDING_RESPONSE);
+                .thenReturn(RENEWED_PAYMENT_AWAITING_RESPONSE);
 
         // When & Then
         mockMvc.perform(post("/payments/renew/")
@@ -189,7 +189,7 @@ class PaymentControllerTest {
     void cancelPayment_ValidRequest_ReturnPaymentResponse() throws Exception {
         // Given
         when(paymentService.handleCancelPayment(SESSION_ID))
-                .thenReturn(SECOND_PAYMENT_PENDING_RESPONSE);
+                .thenReturn(SECOND_PAYMENT_AWAITING_RESPONSE);
 
         // When & Then
         mockMvc.perform(get("/payments/cancel/")

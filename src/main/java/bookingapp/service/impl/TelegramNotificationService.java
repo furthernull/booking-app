@@ -8,8 +8,8 @@ import bookingapp.repository.telegram.TelegramRepository;
 import bookingapp.service.NotificationService;
 import bookingapp.telegram.NotificationTemplates;
 import bookingapp.telegram.TelegramBot;
-import bookingapp.telegram.strategy.booking.BookingNotificationProviderManager;
-import bookingapp.telegram.strategy.payment.PaymentNotificationProviderManager;
+import bookingapp.telegram.strategy.booking.BookingNotificationServiceStrategy;
+import bookingapp.telegram.strategy.payment.PaymentNotificationServiceStrategy;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class TelegramNotificationService implements NotificationService {
-    private final BookingNotificationProviderManager bookingNotificationProviderManager;
-    private final PaymentNotificationProviderManager paymentNotificationProviderManager;
+    private final BookingNotificationServiceStrategy bookingNotificationServiceStrategy;
+    private final PaymentNotificationServiceStrategy paymentNotificationServiceStrategy;
     private final TelegramBot telegramBot;
     private final TelegramRepository telegramRepository;
 
@@ -83,8 +83,8 @@ public class TelegramNotificationService implements NotificationService {
             TelegramChat userChat,
             BookingNotificationDto bookingNotificationDto
     ) {
-        String notification = bookingNotificationProviderManager
-                .getNotificationProvider(bookingNotificationDto.bookingStatus()).getNotification()
+        String notification = bookingNotificationServiceStrategy
+                .getNotificationService(bookingNotificationDto.bookingStatus()).getNotification()
                 + NotificationTemplates.NOTIFICATION_BOOKING_DETAILS_TEMPLATE
                 + prepareNotification(bookingNotificationDto.accommodation());
 
@@ -105,8 +105,8 @@ public class TelegramNotificationService implements NotificationService {
     }
 
     private String prepareNotification(PaymentNotificationDto paymentNotificationDto) {
-        String notification = paymentNotificationProviderManager
-                .getNotificationProvider(paymentNotificationDto.paymentStatus()).getNotification();
+        String notification = paymentNotificationServiceStrategy
+                .getNotificationService(paymentNotificationDto.paymentStatus()).getNotification();
         return String.format(notification,
                 paymentNotificationDto.firstName(),
                 paymentNotificationDto.lastName(),

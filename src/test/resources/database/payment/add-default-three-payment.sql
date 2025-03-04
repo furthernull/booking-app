@@ -45,7 +45,7 @@ INSERT INTO bookings (id, check_in_date, check_out_date, accommodation_id, user_
 SELECT SETVAL('bookings_id_seq', (SELECT MAX(id) FROM bookings));
 
 INSERT INTO payments (id, status, booking_id, session_url, session_id, amount_to_pay, is_deleted) VALUES
-    (1, 'PENDING', 1, 'https://www.example.com', 'sessionIdPending', 100, false),
+    (1, 'AWAITING', 1, 'https://www.example.com', 'sessionIdAwaiting', 100, false),
     (2, 'EXPIRED', 1, 'https://www.example.com', 'sessionIdExpired', 100, false),
     (3, 'PAID', 2, 'https://www.example.com', 'sessionIdPaid', 100, false);
 

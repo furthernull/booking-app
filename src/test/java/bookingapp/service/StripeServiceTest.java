@@ -1,7 +1,7 @@
 package bookingapp.service;
 
 import static bookingapp.test.TestUtils.INVALID_SESSION_ID;
-import static bookingapp.test.TestUtils.PAYMENT_PENDING;
+import static bookingapp.test.TestUtils.PAYMENT_AWAITING;
 import static bookingapp.test.TestUtils.SESSION_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -43,7 +43,7 @@ class StripeServiceTest {
                     .thenReturn(new Session());
 
             // When
-            Session actual = stripeService.createSession(PAYMENT_PENDING);
+            Session actual = stripeService.createSession(PAYMENT_AWAITING);
 
             // Then
             assertNotNull(actual);

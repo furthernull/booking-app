@@ -8,8 +8,8 @@ import static bookingapp.test.TestUtils.BOOKING_NOTIFICATION_DTO;
 import static bookingapp.test.TestUtils.BOOKING_PAGE;
 import static bookingapp.test.TestUtils.BOOKING_STATUS_CANCELLED;
 import static bookingapp.test.TestUtils.BOOKING_STATUS_EXPIRED;
+import static bookingapp.test.TestUtils.BOOKING_STUDIO_AWAITING;
 import static bookingapp.test.TestUtils.BOOKING_STUDIO_CANCELED;
-import static bookingapp.test.TestUtils.BOOKING_STUDIO_PENDING;
 import static bookingapp.test.TestUtils.BOOKING_STUDIO_REQUEST_DTO;
 import static bookingapp.test.TestUtils.BOOKING_STUDIO_RESPONSE_DTO;
 import static bookingapp.test.TestUtils.BOOKING_STUDIO_UPDATED;
@@ -69,7 +69,7 @@ class BookingServiceImplTest {
     void createBooking_ValidUserAndBookingRequest_ReturnValidBookingResponse() {
         // Given
         BookingRequestDto bookingRequestDto = BOOKING_STUDIO_REQUEST_DTO;
-        Booking booking = BOOKING_STUDIO_PENDING;
+        Booking booking = BOOKING_STUDIO_AWAITING;
         BookingResponseDto expected = BOOKING_STUDIO_RESPONSE_DTO;
 
         when(bookingRepository.findConflictingBooking(
@@ -105,7 +105,7 @@ class BookingServiceImplTest {
                 bookingRequestDto.checkInDate(),
                 bookingRequestDto.checkOutDate(),
                 BOOKING_STATUS_CANCELLED
-        )).thenReturn(List.of(BOOKING_STUDIO_PENDING));
+        )).thenReturn(List.of(BOOKING_STUDIO_AWAITING));
 
         // When & Then
         AccommodationAvailabilityException ex = assertThrows(
@@ -159,7 +159,7 @@ class BookingServiceImplTest {
         // Given
         Long bookingId = 1L;
         Long userId = 1L;
-        Booking booking = BOOKING_STUDIO_PENDING;
+        Booking booking = BOOKING_STUDIO_AWAITING;
 
         when(bookingRepository.findByIdAndUserId(bookingId, userId))
                 .thenReturn(Optional.of(booking));
@@ -193,7 +193,7 @@ class BookingServiceImplTest {
         // Given
         Long bookingId = 1L;
         Long userId = 1L;
-        Booking booking = BOOKING_STUDIO_PENDING;
+        Booking booking = BOOKING_STUDIO_AWAITING;
         Booking updatedBooking = BOOKING_STUDIO_UPDATED;
         BookingResponseDto bookingResponseDto = BOOKING_STUDIO_UPDATED_RESPONSE_DTO;
 
@@ -236,9 +236,9 @@ class BookingServiceImplTest {
         String expected = "Accommodation is not available for selected dates";
 
         when(bookingRepository.findByIdAndUserId(bookingId, userId))
-                .thenReturn(Optional.of(BOOKING_STUDIO_PENDING));
+                .thenReturn(Optional.of(BOOKING_STUDIO_AWAITING));
         when(bookingRepository.findConflictingBooking(
-                BOOKING_STUDIO_PENDING.getAccommodation().getId(),
+                BOOKING_STUDIO_AWAITING.getAccommodation().getId(),
                 BOOKING_UPDATE_REQUEST_DTO.checkInDate(),
                 BOOKING_UPDATE_REQUEST_DTO.checkOutDate(),
                 BOOKING_STATUS_CANCELLED
@@ -258,7 +258,7 @@ class BookingServiceImplTest {
         // Given
         Long bookingId = 1L;
         Long userId = 1L;
-        Booking booking = BOOKING_STUDIO_PENDING;
+        Booking booking = BOOKING_STUDIO_AWAITING;
 
         when(bookingRepository.findByIdAndUserId(bookingId, userId))
                 .thenReturn(Optional.of(booking));
