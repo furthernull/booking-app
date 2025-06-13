@@ -1,6 +1,6 @@
 ![banner](src/main/resources/screenshots/banner.jpg)
 [![Static Badge](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-# Accommodation Booking Service
+# rent:Me
 ___
 Booking service, offering individuals the opportunity to rent homes,
 apartments, and other accommodations for their chosen duration.
