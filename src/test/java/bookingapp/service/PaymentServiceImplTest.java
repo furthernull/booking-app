@@ -1,0 +1,199 @@
+package bookingapp.service;
+
+import static bookingapp.test.TestUtils.BOOKING_STUDIO_AWAITING;
+import static bookingapp.test.TestUtils.BOOKING_STUDIO_CONFIRMED;
+import static bookingapp.test.TestUtils.DEFAULT_ID_ONE;
+import static bookingapp.test.TestUtils.PAGEABLE;
+import static bookingapp.test.TestUtils.PAYMENT_AWAITING;
+import static bookingapp.test.TestUtils.PAYMENT_AWAITING_RESPONSE;
+import static bookingapp.test.TestUtils.PAYMENT_EXPIRED;
+import static bookingapp.test.TestUtils.PAYMENT_PAGE;
+import static bookingapp.test.TestUtils.PAYMENT_PAID;
+import static bookingapp.test.TestUtils.PAYMENT_PAID_RESPONSE;
+import static bookingapp.test.TestUtils.PAYMENT_REQUEST_DTO;
+import static bookingapp.test.TestUtils.SESSION_ID;
+import static bookingapp.test.TestUtils.SESSION_URL;
+import static bookingapp.test.TestUtils.USER_CUSTOMER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import bookingapp.dto.payment.PaymentResponse;
+import bookingapp.mapper.PaymentMapper;
+import bookingapp.model.payment.Payment;
+import bookingapp.repository.booking.BookingRepository;
+import bookingapp.repository.payment.PaymentRepository;
+import bookingapp.service.impl.PaymentServiceImpl;
+import bookingapp.service.impl.StripeService;
+import com.stripe.model.checkout.Session;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+class PaymentServiceImplTest {
+    @Mock
+    private BookingRepository bookingRepository;
+    @Mock
+    private NotificationService notificationService;
+    @Mock
+    private PaymentMapper paymentMapper;
+    @Mock
+    private PaymentRepository paymentRepository;
+    @Mock
+    private StripeService stripeService;
+    @InjectMocks
+    private PaymentServiceImpl paymentService;
+
+    @Test
+    @DisplayName("Verify getPayments() method with user id")
+    void getPayments_WithUserId_ShouldReturnUsersPayments() {
+        // Given
+        when(paymentRepository.findByBookingUserId(DEFAULT_ID_ONE, PAGEABLE))
+                .thenReturn(List.of(PAYMENT_AWAITING));
+        when(paymentMapper.toDto(List.of(PAYMENT_AWAITING)))
+                .thenReturn(List.of(PAYMENT_AWAITING_RESPONSE));
+
+        // When
+        List<PaymentResponse> actual = paymentService.getPayments(DEFAULT_ID_ONE, PAGEABLE);
+
+        // Then
+        assertNotNull(actual);
+        assertEquals(List.of(PAYMENT_AWAITING_RESPONSE), actual);
+        verify(paymentRepository).findByBookingUserId(DEFAULT_ID_ONE, PAGEABLE);
+        verify(paymentMapper).toDto(List.of(PAYMENT_AWAITING));
+    }
+
+    @Test
+    @DisplayName("Verify getPayments() method without user id")
+    void getPayments_WithoutUserId_ShouldReturnPaymentsList() {
+        // Given
+        when(paymentRepository.findAll(PAGEABLE)).thenReturn(PAYMENT_PAGE);
+        when(paymentMapper.toDto(PAYMENT_PAGE)).thenReturn(List.of(PAYMENT_AWAITING_RESPONSE));
+
+        // When
+        List<PaymentResponse> actual = paymentService.getPayments(null, PAGEABLE);
+
+        // Then
+        assertNotNull(actual);
+        assertEquals(List.of(PAYMENT_AWAITING_RESPONSE), actual);
+        verify(paymentRepository).findAll(PAGEABLE);
+        verify(paymentMapper).toDto(PAYMENT_PAGE);
+    }
+
+    @Test
+    @DisplayName("Verify initiatePayment() method")
+    void initiatePayment_ValidRequest_ReturnValidPaymentResponse() {
+        // Given
+        Long bookingId = 1L;
+        Long userId = 2L;
+        Payment payment = PAYMENT_AWAITING;
+        Session session = mock(Session.class);
+        PaymentResponse expected = PAYMENT_AWAITING_RESPONSE;
+
+        when(paymentMapper.toModel(PAYMENT_REQUEST_DTO)).thenReturn(payment);
+        when(bookingRepository.findByIdAndUserId(bookingId, userId))
+                .thenReturn(Optional.of(BOOKING_STUDIO_AWAITING));
+        when(stripeService.createSession(payment)).thenReturn(session);
+        when(session.getUrl()).thenReturn(SESSION_URL);
+        when(session.getId()).thenReturn(SESSION_ID);
+        when(paymentRepository.save(payment)).thenReturn(payment);
+        when(paymentMapper.toDto(payment)).thenReturn(expected);
+
+        // When
+        PaymentResponse actual = paymentService.initiatePayment(USER_CUSTOMER, PAYMENT_REQUEST_DTO);
+
+        // Then
+        assertNotNull(actual);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    @DisplayName("Verify handleSuccessPayment() method")
+    void handleSuccessPayment_ValidSessionId_ReturnValidPaymentResponse() {
+        // Given
+        Session session = mock(Session.class);
+
+        when(paymentRepository.findBySessionId(SESSION_ID))
+                .thenReturn(Optional.of(PAYMENT_AWAITING));
+        when(stripeService.getSessionById(SESSION_ID)).thenReturn(session);
+        when(session.getPaymentStatus()).thenReturn("paid");
+        when(bookingRepository.save(BOOKING_STUDIO_AWAITING))
+                .thenReturn(BOOKING_STUDIO_CONFIRMED);
+        when(paymentRepository.save(PAYMENT_AWAITING)).thenReturn(PAYMENT_PAID);
+        when(paymentMapper.toDto(PAYMENT_AWAITING)).thenReturn(PAYMENT_PAID_RESPONSE);
+
+        // When
+        PaymentResponse actual = paymentService.handleSuccessPayment(SESSION_ID);
+
+        // Then
+        assertNotNull(actual);
+        assertEquals(PAYMENT_PAID_RESPONSE, actual);
+    }
+
+    @Test
+    @DisplayName("Verify handleCancelPayment() method")
+    void handleCancelPayment_ValidSessionId_ShouldInvokeSendNotificationReturnPaymentResponse() {
+        // Given
+        Payment payment = PAYMENT_AWAITING;
+        PaymentResponse paymentResponse = PAYMENT_AWAITING_RESPONSE;
+
+        when(paymentRepository.findBySessionId(SESSION_ID)).thenReturn(Optional.of(payment));
+        when(paymentMapper.toDto(payment)).thenReturn(paymentResponse);
+
+        // When
+        PaymentResponse actual = paymentService.handleCancelPayment(SESSION_ID);
+
+        // Then
+        assertNotNull(actual);
+        assertEquals(paymentResponse, actual);
+    }
+
+    @Test
+    @DisplayName("Verify processExpiredPayments() method")
+    void processExpiredPayments_ShouldUpdateExpiredPayments() {
+        // Given
+        Session session = mock(Session.class);
+
+        when(paymentRepository.findAwaitingPayments()).thenReturn(List.of(PAYMENT_AWAITING));
+        when(stripeService.getSessionById(SESSION_ID)).thenReturn(session);
+        when(session.getStatus()).thenReturn("expired");
+
+        // When
+        paymentService.processExpiredPayments();
+
+        // Then
+        verify(paymentRepository).save(PAYMENT_AWAITING);
+    }
+
+    @Test
+    @DisplayName("Renew payment session successfully")
+    void renewPaymentSession_ValidRequest_ShouldReturnUpdatedPaymentResponse() {
+        // Given
+        Session newSession = mock(Session.class);
+        when(newSession.getId()).thenReturn(SESSION_ID);
+        when(newSession.getUrl()).thenReturn(SESSION_URL);
+
+        when(paymentRepository.findBySessionId(SESSION_ID))
+                .thenReturn(Optional.of(PAYMENT_EXPIRED));
+        when(stripeService.createSession(PAYMENT_EXPIRED)).thenReturn(newSession);
+        when(paymentRepository.save(PAYMENT_EXPIRED)).thenReturn(PAYMENT_EXPIRED);
+        when(paymentMapper.toDto(PAYMENT_EXPIRED)).thenReturn(PAYMENT_AWAITING_RESPONSE);
+
+        // When
+        PaymentResponse actual = paymentService.renewPaymentSession(SESSION_ID, USER_CUSTOMER);
+
+        // Then
+        assertNotNull(actual);
+        assertEquals(PAYMENT_AWAITING_RESPONSE, actual);
+        assertEquals(SESSION_ID, PAYMENT_EXPIRED.getSessionId());
+        verify(paymentRepository).save(PAYMENT_EXPIRED);
+    }
+}
